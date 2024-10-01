@@ -6,14 +6,14 @@ import asyncio
 from discord.ext import tasks
 
 d_token = "ODE1MjAwMTE1NDgwMTk5MTY4.YDo8RQ.wUMiIEt9V6zyeIG--DGh-VVvNLk"
-bot = commands.Bot(command_prefix="/")
+bot = commands.Bot(command_prefix="/", intents=discord.Intents.default())
 
 connection = sqlite3.connect('d_base505.db')
 cursor = connection.cursor()
 cursor.execute(
     "CREATE TABLE IF NOT EXISTS basechel (globalid INT PRIMARY KEY, peerid INT, id INT, len INT, time INT, name TEXT, delta INT)")
 connection.commit()
-client = discord.Client()
+client = discord.Client(intents=discord.Intents.default())
 
 gpeerid = 1
 gid = 2
@@ -31,15 +31,21 @@ def current_hour():
 
 
 def gen_new(ctx):
-    id = ctx.message.author.id
+    id = ctx.author.id
     tmp = {"id": "", "len": "", "time": "", "name": ""}
     tmp["id"], tmp["len"], tmp["time"] = id, str(random.randint(1, 10)), str(current_day())
-    name = ctx.message.author.name
+    name = ctx.author.name
     tmp["name"] = str(name)
     if tmp["name"][-12:] == " | ВКонтакте":
         tmp["name"] = tmp["name"][:-12]
     return tmp
 
+async def nsfw_check(ctx):
+    if not(ctx.channel.is_nsfw()):
+        await ctx.respond(
+                    f'{ctx.author.mention}, вибач, але ця команда працює тільки в NSFW каналах.')
+        return 1
+    return 0
 
 '''
 @bot.command()
@@ -53,20 +59,44 @@ async def ok(ctx):
     author = ctx.message.author
     await ctx.send(f'Hello, {author.mention} пидарас!')
 '''
+@bot.slash_command(name="help", guild_ids=None, description = "список доступных команд")
+async def хэлп(ctx):
+    await ctx.respond("""Основные функции (NSFW):
+/писюн - раз в день наращивает ваш личный болт;
+/мой_писюн - выводит вашу личную длину;
+/топ - выводит топ 10 писек сервера;
+/топ_все - выводит топ всех писек на сервере;
+/чат - выводит суммарную длину вашего сервера;
+/кострация - сбрасывает до нуля всё наращенное (и удаляет вас из нащих баз!).
 
+Рандомные случайно добавленные фичи (Work in progress):
+/ролл - позволяет пойти на мид (случайное число 0-100)
 
-@bot.command()
+Политика конфиденциальности и правила использования доступна по ссылочкам 
+https://vk.com/@dickkraftbot-privacy-policy
+https://vk.com/@dickkraftbot-terms-of-service
+https://docs.google.com/document/d/1LWCtroAp5JwAN95LUdGakD-1jOOMrNpruriW-P8agig/edit?usp=sharing
+
+Написать разработчикам можно по тегам: 
+-bourobon#7651
+-Ch4in4opa#7554
+-DrBalanc#2952
+-S013k#4649""", ephemeral=True)
+
+@bot.slash_command(name="писюн", guild_ids=None, description = "раз в день наращивает ваш личный болт")
 async def писюн(ctx):
-    string = str(ctx.message.guild.id)
-    id = str(ctx.message.author.id)
-    author = ctx.message.author
+    if (await nsfw_check(ctx)):
+        return
+    string = ctx.guild.id    #str(ctx.message.guild.id)
+    id = ctx.author.id   #str(ctx.message.author.id)
+    author = ctx.author   #ctx.message.author
     day = current_day()
     cursor.execute("SELECT * FROM basechel WHERE peerid=? and id=?", (int(string), int(id)))
     chel = cursor.fetchone()
     if chel != None:
         chel = list(chel)
         if day - (int(chel[gtime])) < 1:
-            await ctx.send(f'{author.mention}, ти сьогодні вже грав(')
+            await ctx.respond(f'{author.mention}, ти сьогодні вже грав(')
             return
         fin = int(chel[glen])
         ans = random.randint(-10, 10)
@@ -77,13 +107,13 @@ async def писюн(ctx):
         #        print(ans, fin)
         if fin + ans <= 0:
             fin = 0
-            await ctx.send(f'{author.mention}, у тебе відвалилася піська(')
+            await ctx.respond(f'{author.mention}, у тебе відвалилася піська(')
         else:
             fin = fin + ans
             if ans > 0:
-                await ctx.send(f'{author.mention}, твій пісюн виріс на {str(ans)}см. Тепер його довжина {str(fin)} см.')
+                await ctx.respond(f'{author.mention}, твій пісюн виріс на {str(ans)}см. Тепер його довжина {str(fin)} см.')
             else:
-                await ctx.send(
+                await ctx.respond(
                     f'{author.mention}, твій пісюн зменшився на {str(-ans)}см. Тепер його довжина {str(fin)} см.')
         chel[glen] = int(fin)
         chel[gtime] = int(current_day())
@@ -93,7 +123,7 @@ async def писюн(ctx):
     if chel == None:
         new_chel = gen_new(ctx)
 
-        await ctx.send(
+        await ctx.respond(
             f'{author.mention}, Вітаю в грі писюн, ти зіграв в перший раз і зараз твій пісюн має довжину {new_chel["len"]} см.')
 
         RUN = open("GLOBALID", 'r')
@@ -108,48 +138,57 @@ async def писюн(ctx):
         RUN.close()
 
 
-@bot.command()
+@bot.slash_command(name="топ_все", guild_ids=None, description = "выводит топ всех писек на сервере")
 async def топ_все(ctx):
-    string = str(ctx.message.guild.id)
+    if (await nsfw_check(ctx)):
+        return
+    string = ctx.guild.id  # str(ctx.message.guild.id)
+    #string = str(ctx.message.guild.id)
     cursor.execute("SELECT * FROM basechel WHERE peerid=?", (int(string),))
     chel = cursor.fetchall()
     pr = sorted(chel, key=lambda tmp: -int(tmp[glen]))
     ans = ""
     counter = 0
     tmp = 0
-    for i in range(len(pr)):
-        if counter > 4000:
-            break
-        ans += pr[i][gname] + " - " + str(pr[i][glen]) + " см." + " \n"
-        tmp += 1
-        counter = len(ans)
-    await ctx.send(f'{ans}')
-    if counter >= 4000:
-        while tmp <= len(pr):
+    flag = 1
+    await ctx.respond("Топ:")
+    while flag:
+        flag = 0
+        while tmp < len(pr):
             counter = 0
             ans = ""
             for i in range(tmp, len(pr)):
-                ans += pr[i][gname] + " - " + str(pr[i][glen]) + " см." + " \n"
+                if counter > 1000:
+                    flag = 1
+                    break
+                ans += str(tmp + 1) + ". " + pr[i][gname] + " - " + str(pr[i][glen]) + " см." + " \n"
                 counter = len(ans)
                 tmp += 1
-            await ctx.send(f'{ans}')
+            if ans != "":
+                await ctx.send(f'{ans}')
+        else:
+            break
 
 
-@bot.command()
+@bot.slash_command(name="топ", guild_ids=None, description = "выводит топ 10 писек сервера")
 async def топ(ctx):
-    string = str(ctx.message.guild.id)
+    if (await nsfw_check(ctx)):
+        return
+    string = ctx.guild.id  # str(ctx.message.guild.id)
+    #string = str(ctx.message.guild.id)
     cursor.execute("SELECT * FROM basechel WHERE peerid=?", (int(string),))
     chel = cursor.fetchall()
     pr = sorted(chel, key=lambda tmp: -int(tmp[glen]))
     ans = ""
     for i in range(min(10, len(pr))):
-        ans += pr[i][gname] + " - " + str(pr[i][glen]) + " см." + " \n"
-    await ctx.send(f'{ans}')
+        ans += str(i + 1) + ". " + pr[i][gname] + " - " + str(pr[i][glen]) + " см." + " \n"
+    await ctx.respond(f'{ans}')
 
 
-@bot.command()
+@bot.slash_command(name="ролл", guild_ids=None, description = "позволяет пойти на мид (случайное число 0-100)")
 async def ролл(ctx):
-    author = ctx.message.author
+    author = ctx.author  # ctx.message.author
+    #author = ctx.message.author
     arr = ['0 0 1', '0 0 2', '0 0 3', '0 0 4', '0 0 5', '0 0 6', '0 0 7', '0 0 8', '0 0 9', '0 1 0', '0 1 1', '0 1 2',
            '0 1 3', '0 1 4', '0 1 5', '0 1 6', '0 1 7', '0 1 8', '0 1 9', '0 2 0', '0 2 1', '0 2 2', '0 2 3', '0 2 4',
            '0 2 5', '0 2 6', '0 2 7', '0 2 8', '0 2 9', '0 3 0', '0 3 1', '0 3 2', '0 3 3', '0 3 4', '0 3 5', '0 3 6',
@@ -160,28 +199,53 @@ async def ролл(ctx):
            '0 8 5', '0 8 6', '0 8 7', '0 8 8', '0 8 9', '0 9 0', '0 9 1', '0 9 2', '0 9 3', '0 9 4', '0 9 5', '0 9 6',
            '0 9 7', '0 9 8', '0 9 9', '1 0 0']
     chislo = arr[random.randint(0, 99)]
-    await ctx.send(f'{author.mention},  получает случайное число(1-100):  {chislo}')
+    await ctx.respond(f'{author.mention},  получает случайное число(1-100):  {chislo}')
 
 
-@bot.command()
+@bot.slash_command(name="чат", guild_ids=None, description = "выводит суммарную длину вашего сервера")
 async def чат(ctx):
-    string = str(ctx.message.guild.id)
+    if (await nsfw_check(ctx)):
+        return
+    string = ctx.guild.id  # str(ctx.message.guild.id)
+    #string = str(ctx.message.guild.id)
     cursor.execute("SELECT * FROM basechel WHERE peerid=?", (int(string),))
     chel = cursor.fetchall()
     summ = 0
     for i in chel:
         summ += int(i[glen])
-    await ctx.send(f'Довжина писюна вашого чату {str(summ)} см.')
+    await ctx.respond(f'Довжина писюна вашого сервера {str(summ)} см.')
 
 
-@bot.command()
+@bot.slash_command(name="мой_писюн", guild_ids=None, description = "выводит вашу личную длину")
 async def мой_писюн(ctx):
-    string = str(ctx.message.guild.id)
-    id = str(ctx.message.author.id)
-    author = ctx.message.author
+    if (await nsfw_check(ctx)):
+        return
+    string = ctx.guild.id  # str(ctx.message.guild.id)
+    id = ctx.author.id  # str(ctx.message.author.id)
+    author = ctx.author  # ctx.message.author
     cursor.execute("SELECT * FROM basechel WHERE peerid=? and id=?", (int(string), int(id)))
     chel = cursor.fetchone()
-    await ctx.send(f'{author.mention}, довжина твого писюна {str(chel[glen])} см.')
+    if chel == None:
+        await ctx.respond(f'{author.mention}, Пробач, брате, але в тебе ще немає писюна')
+    else:
+        await ctx.respond(f'{author.mention}, довжина твого писюна {str(chel[glen])} см.')
+
+@bot.slash_command(name="кострация", guild_ids=None, description = "сбрасывает до нуля всё наращенное (и удаляет вас из нащих баз!)", nsfw = 1)
+async def remove_cock(ctx):
+    if (await nsfw_check(ctx)):
+        return
+    cursor = connection.cursor()
+    string = ctx.guild.id  # str(ctx.message.guild.id)
+    id = ctx.author.id  # str(ctx.message.author.id)
+    author = ctx.author  # ctx.message.author
+    cursor.execute("SELECT * FROM basechel WHERE peerid=? and id=?", (int(string), int(id)))
+    chel = cursor.fetchone()
+    if chel == None:
+        await ctx.respond(f'Пробач, {author.mention}, але в тебе ще немає писюна')
+    else:
+        cursor.execute("DELETE FROM basechel WHERE peerid=? and id=?", (int(string), int(id)))
+        await ctx.respond(f'{author.mention}, вітаю, ти відрізав собі писюн. Назавжди!')
+    connection.commit()
 
 
 def top_runner():
@@ -264,26 +328,19 @@ async def top_chel():
 @bot.event
 async def top_print():
     await bot.wait_until_ready()
-    cursor.execute("SELECT peerid FROM basechel")
-    ids = list(set(cursor.fetchall()))
-    for i in range(len(ids)):
-        ids[i] = ids[i][0]
-    ans = []
-    for id in ids:
-        sum = 0
-        cursor.execute("SELECT * FROM basechel WHERE peerid=?", (id,))
-        for i in cursor.fetchall():
-            sum += int(i[glen])
-        ans.append([id, sum])
-    #print(ans)
-    # print(vk.method("messages.getConversations"))
-    # vk.method("messages.send", {"chat_id": "2", "message": "пососи", "random_id": random.randint(1, 2147483647)})
-    # vk.method("messages.editChat", {"chat_id": "2", "title": "1488 1488"})
-    # print(vk.method("messages.getConversationMembers", {"peer_id": "2000000001"}))
-    # print(vk.method("messages.getConversationMembers", {"peer_id": "2000000002"}))
-    # print(vk.method("messages.getConversationsById", {"peer_ids": "2000000001, 2000000002"}))
+    cursor.execute("SELECT * FROM basechel")
+    chels = cursor.fetchall()
+    tops = {}
+    for chel in chels:
+        peerid = chel[gpeerid]
+        ln = chel[glen]
+        nowlen = tops.get(peerid)
+        if nowlen == None:
+            tops.update({peerid: ln})
+        else:
+            tops.update({peerid: nowlen + ln})
+    ans = [[i, j] for i, j in sorted(tops.items(), key=lambda item: -item[1])]
     tmp = []
-    ans.sort(key= lambda x: -x[1])
     #print(ans)
     for i in range(len(ans)):
         #print(len(tmp), tmp)
