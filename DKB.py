@@ -134,7 +134,7 @@ if __name__ == "__main__":
         tmp = {"start" : pipeST, "end" : pipeED}
         pipeQueue.put(tmp)
 
-    isProdigy = 0
+    isProdigy = sys.argv[2] == "True"
     isLocal = 1
     debug = sys.argv[1] == "True"
 
