@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 RUN apt update
-RUN apt install git
+RUN apt install git -y
 
 RUN git clone https://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@github.com/S013k/Dick_Kraft_Bot.git
 
