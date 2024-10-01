@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+RUN apk update
+RUN apk add git
+
+RUN git clone https://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@github.com/S013k/Dick_Kraft_Bot.git
+
+WORKDIR "/Dick_Kraft_Bot"
+
+COPY requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD python3 DKB.py

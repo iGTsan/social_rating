@@ -1,0 +1,43 @@
+version: "3.8" 
+
+services:
+
+  db:
+    container_name: db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PW} 
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    build: 
+      context: .
+      dockerfile: Dockerfile.db
+      cache_from:
+        - dk_build_cache
+      args:
+        no-cache: true # Add no-cache arg
+
+  vk_bot:
+    container_name: dick_kraft_bot_vk
+    build:
+      context: .
+      dockerfile: Dockerfile.dkb
+    restart: always
+    depends_on:
+      - db
+
+  pgadmin:
+    container_name: pgadmin 
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_MAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PW} 
+    ports:
+      - 5050:80
+    restart: always
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
