@@ -1,4 +1,4 @@
-version: "3.8" 
+version: "3.8"
 
 services:
 
@@ -16,8 +16,6 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.db
-      cache_from:
-        - dk_build_cache
       args:
         no-cache: true # Add no-cache arg
 

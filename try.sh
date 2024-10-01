@@ -1,6 +1,4 @@
-#!/bin/bash
-
-# Pull latest changes, overwriting local
-git pull
+sudo rm -r db
+sudo rm -r pgadmin
 
 sudo docker compose up -d --build
