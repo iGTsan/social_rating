@@ -27,6 +27,8 @@ services:
       context: .
       dockerfile: Dockerfile.dkb
     restart: always
+    environment:
+      - DEBUG=${DEBUG}
     depends_on:
       - db
 
