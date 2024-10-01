@@ -137,6 +137,7 @@ if __name__ == "__main__":
     isProdigy = sys.argv[2] == "True"
     isLocal = 1
     debug = sys.argv[1] == "True"
+    print("isProdigy", isProdigy, "isLocal", isLocal, "debug", debug)
 
     LP = AutificationMain(isProdigy)
 
