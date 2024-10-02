@@ -126,8 +126,6 @@ def dailyTasks(isProdigy, isLocal, sendQueue, pipeQueue, debug):
 
 if __name__ == "__main__":
 
-    time.sleep(10)
-
     eventQueue = multiprocessing.Queue(maxsize=1000)
     sendQueue = multiprocessing.Queue(maxsize=1000)
     pipeQueue = multiprocessing.Queue(maxsize=100)
@@ -136,10 +134,9 @@ if __name__ == "__main__":
         tmp = {"start" : pipeST, "end" : pipeED}
         pipeQueue.put(tmp)
 
-    isProdigy = sys.argv[2] == "True"
+    isProdigy = 1 #sys.argv[2] == "True"
     isLocal = 1
-    debug = sys.argv[1] == "True"
-    print("isProdigy", isProdigy, "isLocal", isLocal, "debug", debug)
+    debug = 1 #sys.argv[1] == "True"
 
     LP = AutificationMain(isProdigy)
 
