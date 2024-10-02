@@ -13,11 +13,7 @@ services:
     restart: always
     volumes:
       - ./db:/var/lib/postgresql/data
-    build: 
-      context: .
-      dockerfile: Dockerfile.db
-      args:
-        no-cache: true # Add no-cache arg
+      - ./db_init:/docker-entrypoint-initdb.d
 
   vk_bot:
     container_name: dick_kraft_bot_vk

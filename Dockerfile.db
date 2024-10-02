@@ -1,3 +1,0 @@
-FROM postgres:alpine
-
-ADD dump_s013k.sql /docker-entrypoint-initdb.d
