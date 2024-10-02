@@ -42,3 +42,7 @@ services:
     restart: always
     volumes:
       - ./pgadmin:/var/lib/pgadmin
+
+volumes:
+  db:
+    driver: local
