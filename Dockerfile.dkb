@@ -1,13 +1,8 @@
 FROM python:3.11-slim
 
-RUN apt update
-RUN apt install git -y
-
-RUN git clone https://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@github.com/S013k/Dick_Kraft_Bot.git
-
 WORKDIR "/Dick_Kraft_Bot"
 
-COPY requirements.txt ./
+COPY ./build ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
