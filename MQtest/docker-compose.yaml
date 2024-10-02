@@ -10,7 +10,5 @@ services:
 
   python:
     build: .
-    volumes:
-      - .:/app
     depends_on:
       - rabbitmq
