@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR "/test"
 
-COPY ./test ./test
+COPY ./test ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
