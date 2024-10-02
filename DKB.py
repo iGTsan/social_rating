@@ -126,7 +126,7 @@ def dailyTasks(isProdigy, isLocal, sendQueue, pipeQueue, debug):
 
 if __name__ == "__main__":
 
-    time.sleep(10)
+    time.sleep(20)
 
     eventQueue = multiprocessing.Queue(maxsize=1000)
     sendQueue = multiprocessing.Queue(maxsize=1000)
