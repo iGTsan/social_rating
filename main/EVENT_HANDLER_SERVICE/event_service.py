@@ -1,4 +1,4 @@
-import sys, pika, json 
+import sys, pika, json, concurrent.futures
 import random
 from utilities import *
 
