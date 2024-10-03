@@ -1,4 +1,4 @@
-import pika, time
+import pika, time, sys
 
 while True:
     # Connect to RabbitMQ
@@ -8,27 +8,28 @@ while True:
         break
     except:
         print("Failed to connect to RabbitMQ")
+        sys.stdout.flush()
         time.sleep(2)
         continue
 
 
 
-# Declare queue
+# Declare the queue
 channel.queue_declare(queue='test')
 
-# Publish message
-channel.basic_publish(exchange='', routing_key='test', body='Hello World!')
-print("Sent message")
-
-# Define callback for receiving messages
+# Define callback function to handle messages
 def callback(ch, method, properties, body):
-    print("Received: %r" % body)
+    print(f"Received: {body}")
+    sys.stdout.flush()
 
-# Set up subscription on queue
+# Set up subscription on the queue
 channel.basic_consume(queue='test',
                       auto_ack=True,
                       on_message_callback=callback)
 
 print(' [*] Waiting for messages. To exit press CTRL+C')
+sys.stdout.flush()
+
+# Start consuming messages
 channel.start_consuming()
 
