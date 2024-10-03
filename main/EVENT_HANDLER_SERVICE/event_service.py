@@ -5,8 +5,7 @@ from utilities import *
 class Events:
     def __init__(self, isProdigy, isLocal):
         self.connection_pool = StartDB(isProdigy, isLocal)
-        self.sendQueue = 0
-        self.pipeQueue = 0
+        self.sendQueue = channel.queue_declare(queue='sendQueue')
 
     def start_event(self, target, event):
         #print(event)
@@ -15,7 +14,7 @@ class Events:
         #print(returnValue)
         self.connection_pool.putconn(connection)
         for request in returnValue:
-            self.sendQueue.put(request)
+            channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(list(request)))
 
     def gen_new(self, id):
         id = str(id)
@@ -249,11 +248,36 @@ class Events:
         return returnValue
 
 
-def callback(ch, method, properties, body):
-    data = json.loads(body)
-    print(" [x] Received %r" % data)
-    sys.stdout.flush()
+executor = Events(isProdigy, isLocal)
+threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=32)
 
+def callback(ch, method, properties, body):
+    event = json.loads(body)
+    #print(" [x] Received %r" % data)
+    #sys.stdout.flush()
+    try: 
+        if debug and event["message"]["text"][0] == "/":
+            threadPool.submit(executor.start_event, executor.TechRab, event)
+
+        elif event["message"]["text"].lower() == "/писюн":
+            threadPool.submit(executor.start_event, executor.delta, event)
+        elif event["message"]["text"].lower() == "/топ":
+            threadPool.submit(executor.start_event, executor.top, event)
+        elif event["message"]["text"].lower() == "/топ_все":
+            threadPool.submit(executor.start_event, executor.top_all, event)
+        elif event["message"]["text"].lower() == "/ролл":
+            threadPool.submit(executor.start_event, executor.roll, event)
+        elif event["message"]["text"].lower() == "/чат":
+            threadPool.submit(executor.start_event, executor.summarry, event)
+        elif event["message"]["text"].lower() == "/микс":
+            threadPool.submit(executor.start_event, executor.sound, event)
+        elif event["message"]["text"].lower() == "/мой_писюн":
+            threadPool.submit(executor.start_event, executor.my_cock, event)
+        elif event["message"]["text"].lower() == "/кострация":
+            threadPool.submit(executor.start_event, executor.remove_cock, event)
+    except Exception as shit:
+        print(shit)
+        sys.stdout.flush()
 
 if __name__ == "__main__":
 
@@ -269,16 +293,12 @@ if __name__ == "__main__":
             continue
 
     channel.queue_declare(queue='eventQueue')
-    channel.queue_declare(queue='sendQueue')
 
     isLocal = int(sys.argv[1])
     isProdigy = int(sys.argv[2])
     debug = int(sys.argv[3])
 
 #def eventManager(eventQueue, isProdigy, isLocal, sendQueue, pipeQueue, debug):
-
-    executor = Events(isProdigy, isLocal)
-    threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=32)
 
     if debug:
         test_event = {'message': {'date': 1669403763, 'from_id': 231688699, 'id': 0, 'out': 0, 'attachments': [], 'conversation_message_id': 610, 'fwd_messages': [], 'important': False, 'is_hidden': False, 'peer_id': 2000000001, 'random_id': 0, 'text': '/топ'}, 'client_info': {'button_actions': ['text', 'vkpay', 'open_app', 'location', 'open_link', 'callback', 'intent_subscribe', 'intent_unsubscribe'], 'keyboard': True, 'inline_keyboard': True, 'carousel': True, 'lang_id': 0}}
