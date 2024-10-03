@@ -1,5 +1,6 @@
 import pika
 import time
+import sys
 
 # Connect to RabbitMQ
 while True:
