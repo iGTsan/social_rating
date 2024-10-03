@@ -1,4 +1,4 @@
-import random, vk_api, os, time, sys, pika
+import random, vk_api, os, time, sys, pika, json
 from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
 
 
