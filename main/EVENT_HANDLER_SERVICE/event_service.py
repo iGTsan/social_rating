@@ -298,33 +298,35 @@ if __name__ == "__main__":
     print("EventManager STARTED!")
     sys.stdout.flush()
 
-    while True:
-        try:
-            while True:
+    channel.start_consuming()
 
-                event = eventQueue.get(True)
+    # while True:
+    #     try:
+    #         while True:
 
-                if debug and event["message"]["text"][0] == "/":
-                    threadPool.submit(executor.start_event, executor.TechRab, event)
-                    continue
+    #             event = eventQueue.get(True)
 
-                if event["message"]["text"].lower() == "/писюн":
-                    threadPool.submit(executor.start_event, executor.delta, event)
-                elif event["message"]["text"].lower() == "/топ":
-                    threadPool.submit(executor.start_event, executor.top, event)
-                elif event["message"]["text"].lower() == "/топ_все":
-                    threadPool.submit(executor.start_event, executor.top_all, event)
-                elif event["message"]["text"].lower() == "/ролл":
-                    threadPool.submit(executor.start_event, executor.roll, event)
-                elif event["message"]["text"].lower() == "/чат":
-                    threadPool.submit(executor.start_event, executor.summarry, event)
-                elif event["message"]["text"].lower() == "/микс":
-                    threadPool.submit(executor.start_event, executor.sound, event)
-                elif event["message"]["text"].lower() == "/мой_писюн":
-                    threadPool.submit(executor.start_event, executor.my_cock, event)
-                elif event["message"]["text"].lower() == "/кострация":
-                    threadPool.submit(executor.start_event, executor.remove_cock, event)
-                break
+    #             if debug and event["message"]["text"][0] == "/":
+    #                 threadPool.submit(executor.start_event, executor.TechRab, event)
+    #                 continue
 
-        except Exception as shit:
-            print("eventManager", shit, event)
+    #             if event["message"]["text"].lower() == "/писюн":
+    #                 threadPool.submit(executor.start_event, executor.delta, event)
+    #             elif event["message"]["text"].lower() == "/топ":
+    #                 threadPool.submit(executor.start_event, executor.top, event)
+    #             elif event["message"]["text"].lower() == "/топ_все":
+    #                 threadPool.submit(executor.start_event, executor.top_all, event)
+    #             elif event["message"]["text"].lower() == "/ролл":
+    #                 threadPool.submit(executor.start_event, executor.roll, event)
+    #             elif event["message"]["text"].lower() == "/чат":
+    #                 threadPool.submit(executor.start_event, executor.summarry, event)
+    #             elif event["message"]["text"].lower() == "/микс":
+    #                 threadPool.submit(executor.start_event, executor.sound, event)
+    #             elif event["message"]["text"].lower() == "/мой_писюн":
+    #                 threadPool.submit(executor.start_event, executor.my_cock, event)
+    #             elif event["message"]["text"].lower() == "/кострация":
+    #                 threadPool.submit(executor.start_event, executor.remove_cock, event)
+    #             break
+
+    #     except Exception as shit:
+    #         print("eventManager", shit, event)
