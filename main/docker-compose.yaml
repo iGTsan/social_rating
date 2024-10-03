@@ -47,18 +47,18 @@ services:
   #     - db
   #     - rabbitmq
 
-  # event_handler:
-  #   container_name: dick_kraft_bot_event_handler
-  #   build:
-  #     context: ./EVENT_HANDLER_SERVICE
-  #   restart: always
-  #   environment:
-  #     - DEBUG=${DEBUG}
-  #     - PRODIGY=${PRODIGY}
-  #     - LOCAL=${LOCAL}
-  #   depends_on:
-  #     - db
-  #     - rabbitmq
+  event_handler:
+    container_name: dick_kraft_bot_event_handler
+    build:
+      context: ./EVENT_HANDLER_SERVICE
+    restart: always
+    environment:
+      - DEBUG=${DEBUG}
+      - PRODIGY=${PRODIGY}
+      - LOCAL=${LOCAL}
+    depends_on:
+      - db
+      - rabbitmq
 
   vk_api_event:
     container_name: dick_kraft_bot_vk_api_event
