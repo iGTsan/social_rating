@@ -1,8 +1,17 @@
-import pika
+import pika, time
 
-# Connect to RabbitMQ
-connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
-channel = connection.channel()
+while True:
+    # Connect to RabbitMQ
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+        channel = connection.channel()
+        break
+    except:
+        print("Failed to connect to RabbitMQ")
+        time.sleep(2)
+        continue
+
+
 
 # Declare queue
 channel.queue_declare(queue='test')
