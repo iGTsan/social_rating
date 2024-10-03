@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management 
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  db:
+    container_name: db
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PW} 
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - ./containers_data/db:/var/lib/postgresql/data
+      - ./DB_SERVICE:/docker-entrypoint-initdb.d
+  
+  # vk_api_send:
+  #   container_name: dick_kraft_bot_vk_api_send
+  #   build:
+  #     context: ./VK_API_SEND_SERVICE
+  #   restart: always
+  #   environment:
+  #     - DEBUG=${DEBUG}
+  #     - PRODIGY=${PRODIGY}
+  #     - LOCAL=${LOCAL}
+  #   depends_on:
+  #     - db
+  #     - rabbitmq
+    
+  # vk_daily:
+  #   container_name: dick_kraft_bot_vk_daily
+  #   build:
+  #     context: ./VK_DAILY_SERVICE
+  #   restart: always
+  #   environment:
+  #     - DEBUG=${DEBUG}
+  #     - PRODIGY=${PRODIGY}
+  #     - LOCAL=${LOCAL}
+  #   depends_on:
+  #     - db
+  #     - rabbitmq
+
+  # event_handler:
+  #   container_name: dick_kraft_bot_event_handler
+  #   build:
+  #     context: ./EVENT_HANDLER_SERVICE
+  #   restart: always
+  #   environment:
+  #     - DEBUG=${DEBUG}
+  #     - PRODIGY=${PRODIGY}
+  #     - LOCAL=${LOCAL}
+  #   depends_on:
+  #     - db
+  #     - rabbitmq
+
+  vk_api_event:
+    container_name: dick_kraft_bot_vk_api_event
+    build:
+      context: ./VK_API_EVENT_SERVICE
+    restart: always
+    environment:
+      - DEBUG=${DEBUG}
+      - PRODIGY=${PRODIGY}
+      - LOCAL=${LOCAL}
+    depends_on:
+      - db
+      - rabbitmq
+
+  pgadmin:
+    container_name: pgadmin 
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_MAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PW} 
+    ports:
+      - 5050:80
+    restart: always
+    volumes:
+      - ./containers_data/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - db
