@@ -3,8 +3,9 @@ import random
 from utilities import *
 
 class Events:
-    def __init__(self, isProdigy, isLocal):
+    def __init__(self, isProdigy, isLocal, channel):
         self.connection_pool = StartDB(isProdigy, isLocal)
+        self.channel = channel
         self.sendQueue = channel.queue_declare(queue='sendQueue')
 
     def start_event(self, target, event):
@@ -298,7 +299,7 @@ if __name__ == "__main__":
     isProdigy = int(sys.argv[2])
     debug = int(sys.argv[3])
 
-    executor = Events(isProdigy, isLocal)
+    executor = Events(isProdigy, isLocal, channel)
     threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=32)
 
 #def eventManager(eventQueue, isProdigy, isLocal, sendQueue, pipeQueue, debug):
