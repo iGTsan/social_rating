@@ -6,7 +6,7 @@ threadPool = None
 channel = None
 connection_pool = None
 
-def start_event(self, target, event):
+def start_event(target, event):
     #print(event)
     connection = connection_pool.getconn()
     returnValue = target(event, connection)
@@ -19,7 +19,7 @@ def start_event(self, target, event):
         print("SENT")
         sys.stdout.flush()
 
-def gen_new(self, id):
+def gen_new(id):
     id = str(id)
     if id[0] == '-':
         return 0
@@ -37,7 +37,7 @@ def gen_new(self, id):
             tmp["name"] = tmp["name"][:-12]
         return tmp
 
-def delta(self, event, connection):
+def delta(event, connection):
     returnValue = []
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
@@ -101,7 +101,7 @@ def delta(self, event, connection):
     cursor.close()
     return returnValue
 
-def top_all(self, event, connection):
+def top_all(event, connection):
     returnValue = []
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
@@ -133,7 +133,7 @@ def top_all(self, event, connection):
     cursor.close()
     return returnValue
 
-def top(self, event, connection):
+def top(event, connection):
     returnValue = []
     #print("123125456t436743")
     cursor = connection.cursor()
@@ -159,12 +159,12 @@ def rand_gachi_text(self):
     tmp = str(random.choice(gachi))
     return tmp
 
-def TechRab(self, event, connection):
+def TechRab(event, connection):
     return [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
                                 "message": "Тыкни попозже, ведутся техработы.",
                                 "random_id": 0}, "OneWay")]
 
-def roll(self, event, connection):
+def roll(event, connection):
     cursor = connection.cursor()
     id = str(event["message"]["from_id"])
     string = str(event["message"]["peer_id"])
@@ -190,7 +190,7 @@ def roll(self, event, connection):
                                     "message": chel[gname] + " получает случайное число(1-100):  " + chislo,
                                     "random_id": 0}, "OneWay")]
 
-def summarry(self, event, connection):
+def summarry(event, connection):
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
     cursor.execute("SELECT * FROM basechel WHERE peerid=%s", (int(string),))
@@ -204,7 +204,7 @@ def summarry(self, event, connection):
                                     summ) + " см.",
                                 "random_id": 0}, "OneWay")]
 
-def sound(self, event, connection):
+def sound(event, connection):
     f = open('tracks.txt', 'r')
     arr_track = f.readlines()
     f.close()
@@ -214,7 +214,7 @@ def sound(self, event, connection):
                                     "attachment": f"audio{-193557157}_{str(random.choice(arr_track))}",
                                     "random_id": random.randint(1, 2147483647)}, "OneWay")]
 
-def my_cock(self, event, connection):
+def my_cock(event, connection):
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
     id = str(event["message"]["from_id"])
@@ -231,7 +231,7 @@ def my_cock(self, event, connection):
                                     "message": chel[gname] + ", довжина твого писюна " + str(chel[glen]) + " см.",
                                     "random_id": 0}, "OneWay")]
 
-def remove_cock(self, event, connection):
+def remove_cock(event, connection):
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
     id = str(event["message"]["from_id"])
