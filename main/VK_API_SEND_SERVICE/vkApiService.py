@@ -1,5 +1,10 @@
 import vk_api, multiprocessing, time
 
+isLocal = None
+isProdigy = None
+debug = None
+API = None
+threadPool = None
 def Autification(isProdigy):
     if isProdigy:
         RUN = open('RUNProdigy.txt', 'r')
@@ -82,3 +87,59 @@ class ApiService:
             pipe.send(False)
             pipe.recv()
             self.pipeQueue.put(event[4])
+
+def callback(ch, method, properties, body):
+    request = json.loads(body)
+    #print(" [x] Received %r" % data)
+    #sys.stdout.flush()
+    try:
+        if debug and request[1] != "messages.send":
+            print("sending", request)
+
+        if request[0] == "bot":
+            if request[3] == "OneWay":
+                API.safe_executer(request, 0, "execute")
+            else:
+                threadPool.submit(API.safe_executer, request, 0, "execute_cb")
+        elif request[0] == "admin":
+            if request[3] == "OneWay":
+                API.safe_executer(request, 1, "execute")
+            else:
+                threadPool.submit(API.safe_executer, request, 1, "execute_cb")
+        else:
+            threadPool.submit(API.safe_executer, request, 1, "is_admin")
+        break
+    except Exception as shit:
+        print("apiService", shit, request)
+        sys.stdout.flush()
+
+if __name__ == "__main__":
+    
+    while True:
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+            channel = connection.channel()
+            break
+        except Exception:
+            print("Failed to connect to RabbitMQ")
+            sys.stdout.flush()
+            time.sleep(2)
+            continue
+
+    channel.queue_declare(queue='sendQueue')
+
+    isLocal = int(sys.argv[1])
+    isProdigy = int(sys.argv[2])
+    debug = int(sys.argv[3])
+
+    API = vkApiService.ApiService(sendQueue, pipeQueue, isProdigy)
+    threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=100)
+
+    channel.basic_consume(queue='sendQueue',
+                      auto_ack=True,
+                      on_message_callback=callback)
+
+    print("apiService STARTED!")
+    sys.stdout.flush()
+
+    channel.start_consuming()
