@@ -1,10 +1,11 @@
-import sys, pika, json, concurrent.futures
+import sys, pika, json, concurrent.futures, multiprocessing
 import random
 from utilities import *
 
 threadPool = None
 channel = None
 connection_pool = None
+innerQueue = None
 
 def start_event(target, event):
     #print(event)
@@ -13,11 +14,7 @@ def start_event(target, event):
     #print(returnValue)
     connection_pool.putconn(connection)
     for request in returnValue:
-        print("SENDING", request)
-        sys.stdout.flush()
-        channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(list(request)))
-        print("SENT")
-        sys.stdout.flush()
+        innerQueue.put(request)
 
 def gen_new(id):
     id = str(id)
@@ -278,6 +275,30 @@ def callback(ch, method, properties, body):
         print(shit)
         sys.stdout.flush()
 
+def innerQueueManager(innerQueue):
+    while True:
+        try:
+            while True:
+                try:
+                    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+                    channel = connection.channel()
+                    break
+                except Exception:
+                    print("Failed to connect to RabbitMQ")
+                    sys.stdout.flush()
+                    time.sleep(2)
+                    continue
+
+            channel.queue_declare(queue='sendQueue')
+
+            while True:
+                event = innerQueue.get()
+                channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(event))
+                
+        except Exception as shit:
+            print("innerQueueManager", shit)
+            sys.stdout.flush()
+
 if __name__ == "__main__":
 
     while True:
@@ -292,7 +313,6 @@ if __name__ == "__main__":
             continue
 
     channel.queue_declare(queue='eventQueue')
-    channel.queue_declare(queue='sendQueue')
 
     isLocal = int(sys.argv[1])
     isProdigy = int(sys.argv[2])
@@ -300,6 +320,10 @@ if __name__ == "__main__":
 
     threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=32)
     connection_pool = StartDB(isProdigy, isLocal)
+    innerQueue = multiprocessing.Queue(maxsize=1000)
+
+    innerQueueProcess = multiprocessing.Process(target=innerQueueManager, args=(innerQueue,))
+    innerQueueProcess.start()
 
 #def eventManager(eventQueue, isProdigy, isLocal, sendQueue, pipeQueue, debug):
 
