@@ -6,7 +6,10 @@ class Events:
     def __init__(self, isProdigy, isLocal, channel):
         self.connection_pool = StartDB(isProdigy, isLocal)
         self.channel = channel
+        print("sendQueue init")
         self.sendQueue = channel.queue_declare(queue='sendQueue')
+        print("sendQueue init success")
+        sys.stdout.flush()
 
     def start_event(self, target, event):
         #print(event)
