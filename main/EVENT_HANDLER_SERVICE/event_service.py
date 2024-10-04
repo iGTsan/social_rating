@@ -13,7 +13,11 @@ def start_event(self, target, event):
     #print(returnValue)
     connection_pool.putconn(connection)
     for request in returnValue:
+        print("SENDING", request)
+        sys.stdout.flush()
         channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(list(request)))
+        print("SENT")
+        sys.stdout.flush()
 
 def gen_new(self, id):
     id = str(id)
