@@ -108,7 +108,6 @@ def callback(ch, method, properties, body):
                 threadPool.submit(API.safe_executer, request, 1, "execute_cb")
         else:
             threadPool.submit(API.safe_executer, request, 1, "is_admin")
-        break
     except Exception as shit:
         print("apiService", shit, request)
         sys.stdout.flush()
