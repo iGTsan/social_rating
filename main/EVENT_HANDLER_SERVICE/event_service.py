@@ -248,8 +248,8 @@ class Events:
         return returnValue
 
 
-executor = Events(isProdigy, isLocal)
-threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=32)
+executor = None
+threadPool = None
 
 def callback(ch, method, properties, body):
     event = json.loads(body)
@@ -297,6 +297,9 @@ if __name__ == "__main__":
     isLocal = int(sys.argv[1])
     isProdigy = int(sys.argv[2])
     debug = int(sys.argv[3])
+
+    executor = Events(isProdigy, isLocal)
+    threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=32)
 
 #def eventManager(eventQueue, isProdigy, isLocal, sendQueue, pipeQueue, debug):
 
