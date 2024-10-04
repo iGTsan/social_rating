@@ -30,9 +30,7 @@ def adminAuth():
 
 
 class ApiService:
-    def __init__(self, sendQueue, pipeQueue, isProdigy):
-        self.sendQueue = sendQueue
-        self.pipeQueue = pipeQueue
+    def __init__(self, isProdigy):
         self.isProdigy = isProdigy
         self.vk = Autification(isProdigy)
         self.vk_admin = adminAuth()
@@ -131,7 +129,7 @@ if __name__ == "__main__":
     isProdigy = int(sys.argv[2])
     debug = int(sys.argv[3])
 
-    API = vkApiService.ApiService(sendQueue, pipeQueue, isProdigy)
+    API = ApiService(isProdigy)
     threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=100)
 
     channel.basic_consume(queue='sendQueue',
