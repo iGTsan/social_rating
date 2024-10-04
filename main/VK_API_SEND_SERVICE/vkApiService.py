@@ -1,4 +1,4 @@
-import vk_api, multiprocessing, time
+import vk_api, multiprocessing, time, sys, pika
 
 isLocal = None
 isProdigy = None
