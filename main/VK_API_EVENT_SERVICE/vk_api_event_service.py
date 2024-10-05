@@ -27,7 +27,18 @@ def auth_handler():
     remember_device = True
     return key, remember_device
 
-def pika_auth():
+if __name__ == "__main__":
+
+    # time.sleep(30)
+
+    # eventQueue = multiprocessing.Queue(maxsize=1000)
+    # sendQueue = multiprocessing.Queue(maxsize=1000)
+    # pipeQueue = multiprocessing.Queue(maxsize=100)
+    # for i in range(50):
+    #     pipeST , pipeED = multiprocessing.Pipe()
+    #     tmp = {"start" : pipeST, "end" : pipeED}
+    #     pipeQueue.put(tmp)
+
     while True:
         try:
             connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
@@ -41,20 +52,6 @@ def pika_auth():
 
     channel.queue_declare(queue='eventQueue')
     channel.queue_declare(queue='sendQueue')
-
-if __name__ == "__main__":
-
-    # time.sleep(30)
-
-    # eventQueue = multiprocessing.Queue(maxsize=1000)
-    # sendQueue = multiprocessing.Queue(maxsize=1000)
-    # pipeQueue = multiprocessing.Queue(maxsize=100)
-    # for i in range(50):
-    #     pipeST , pipeED = multiprocessing.Pipe()
-    #     tmp = {"start" : pipeST, "end" : pipeED}
-    #     pipeQueue.put(tmp)
-
-    pika_auth()
 
     isLocal = int(sys.argv[1])
     isProdigy = int(sys.argv[2])
@@ -111,8 +108,25 @@ if __name__ == "__main__":
 
         except Exception as fuck:
             try:
+                connection.close()
+                while True:
+                    try:
+                        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+                        channel = connection.channel()
+                        break
+                    except Exception:
+                        print("Failed to connect to RabbitMQ")
+                        sys.stdout.flush()
+                        time.sleep(2)
+                        continue
+
+                channel.queue_declare(queue='eventQueue')
+                channel.queue_declare(queue='sendQueue')
+            except Exception as shit:
+                print("ну иди выключи компьютер")
+                
+            try:
                 LP = AutificationMain(isProdigy)
-                pika_auth()
                 print("LP update")
             except Exception as shit:
                 print("ну иди выключи компьютер")
