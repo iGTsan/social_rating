@@ -131,7 +131,7 @@ def rabbitQueueReader(innerQueue):
 def restfulApiReader(innerQueue):
     app = Flask(__name__)
 
-    @app.route('/', methods=['GET'])
+    @app.route('/cb', methods=['GET'])
     def event():
         event = request.get_json()
         print(event)
@@ -156,6 +156,9 @@ if __name__ == "__main__":
 
     restfulApiReaderProcess.start()
     rabbitQueueReaderProcess.start()
+
+    print("API_SEND_SERVICE STARTED")
+    sys.stdout.flush()
 
     while True:
         try:
