@@ -1,5 +1,7 @@
 import vk_api, multiprocessing, time, sys, pika, concurrent.futures, json
+from flask import Flask
 
+innerQueue = multiprocessing.Queue()
 isLocal = None
 isProdigy = None
 debug = None
@@ -86,13 +88,16 @@ class ApiService:
             pipe.recv()
             self.pipeQueue.put(event[4])
 
-def callback(ch, method, properties, body):
+
+def callback_MQ(ch, method, properties, body):
     request = json.loads(body)
-    #print(" [x] Received %r" % data)
-    #sys.stdout.flush()
+    innerQueue.put(request)
+
+def prosessRequest(request):
     try:
         if debug and request[1] != "messages.send":
             print("sending", request)
+            sys.stdout.flush()
 
         if request[0] == "bot":
             if request[3] == "OneWay":
@@ -110,8 +115,7 @@ def callback(ch, method, properties, body):
         print("apiService", shit, request)
         sys.stdout.flush()
 
-if __name__ == "__main__":
-    
+def rabbitQueueReader(innerQueue):
     while True:
         try:
             connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
@@ -122,6 +126,25 @@ if __name__ == "__main__":
             sys.stdout.flush()
             time.sleep(2)
             continue
+    channel.queue_declare(queue='sendQueue')
+    channel.basic_consume(queue='sendQueue',
+                      auto_ack=True,
+                      on_message_callback=callback_MQ)
+    channel.start_consuming()
+
+def restfulApiReader(innerQueue):
+    app = Flask(__name__)
+
+    @app.route('/', methods=['GET'])
+    def event():
+        event = request.get_json()
+        pipe = multiprocessing.Pipe()
+        innerQueue.put(event)
+        return "OK"
+
+    app.run(debug=False, host='0.0.0.0', port=5000)
+
+if __name__ == "__main__":
 
     channel.queue_declare(queue='sendQueue')
 
@@ -130,13 +153,13 @@ if __name__ == "__main__":
     debug = int(sys.argv[3])
 
     API = ApiService(isProdigy)
-    threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=100)
 
-    channel.basic_consume(queue='sendQueue',
-                      auto_ack=True,
-                      on_message_callback=callback)
+    restfulApiReaderProcess = multiprocessing.Process(target=restfulApiReader, args=(innerQueue,))
+    rabbitQueueReaderProcess = multiprocessing.Process(target=rabbitQueueReader, args=(innerQueue,))
 
-    print("apiService STARTED!")
-    sys.stdout.flush()
+    restfulApiReaderProcess.start()
+    rabbitQueueReaderProcess.start()
 
-    channel.start_consuming()
+    while True:
+        data = innerQueue.get()
+        prosessRequest(data)
