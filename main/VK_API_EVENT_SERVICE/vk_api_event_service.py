@@ -27,9 +27,7 @@ def auth_handler():
     remember_device = True
     return key, remember_device
 
-
-if __name__ == "__main__":
-
+def pika_auth():
     while True:
         try:
             connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
@@ -44,6 +42,8 @@ if __name__ == "__main__":
     channel.queue_declare(queue='eventQueue')
     channel.queue_declare(queue='sendQueue')
 
+if __name__ == "__main__":
+
     # time.sleep(30)
 
     # eventQueue = multiprocessing.Queue(maxsize=1000)
@@ -53,6 +53,8 @@ if __name__ == "__main__":
     #     pipeST , pipeED = multiprocessing.Pipe()
     #     tmp = {"start" : pipeST, "end" : pipeED}
     #     pipeQueue.put(tmp)
+
+    pika_auth()
 
     isLocal = int(sys.argv[1])
     isProdigy = int(sys.argv[2])
@@ -110,6 +112,7 @@ if __name__ == "__main__":
         except Exception as fuck:
             try:
                 LP = AutificationMain(isProdigy)
+                pika_auth()
                 print("LP update")
             except Exception as shit:
                 print("ну иди выключи компьютер")
