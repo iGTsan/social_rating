@@ -6,7 +6,7 @@ threadPool = None
 channel = None
 connection_pool = None
 innerQueue = None
-apiServiceURL = "dick_kraft_bot_vk_api_send/cb:5000"
+apiServiceURL = "vk_api_send/cb:5000"
 
 def start_event(target, event):
     #print(event)
