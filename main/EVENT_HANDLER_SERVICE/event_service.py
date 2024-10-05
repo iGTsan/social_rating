@@ -29,6 +29,8 @@ def gen_new(id):
         # self.sendQueue.put(("bot", "users.get", {"user_ids": str(id)}, "CallBack", pipes))
         # nm_tmp = pipes["end"].recv()
         # pipes["end"].send("banana")
+        print("Sending request")
+        sys.stdout.flush()
         data = ("bot", "users.get", {"user_ids": str(id)}, "CallBack")
         nm_tmp = requests.get(apiServiceURL, params=data)
         print(nm_tmp)
