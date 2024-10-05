@@ -59,6 +59,10 @@ def delta(event, connection):
     cursor.execute("SELECT * FROM basechel WHERE peerid=%s and id=%s", [int(string), int(id)])
     chel = cursor.fetchone()
     if chel != None:
+        print("NE NONE")
+        sys.stdout.flush()
+
+
         chel = list(chel)
         if day - (int(chel[gtime])) < 1:
             cursor.close()
@@ -96,6 +100,9 @@ def delta(event, connection):
         connection.commit()
 
     if chel == None:
+        print("NONE")
+        sys.stdout.flush()
+
         new_chel = self.gen_new(id)
         if new_chel == 0:
             returnValue = [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
