@@ -29,8 +29,8 @@ def gen_new(id):
         id = str(id)
         tmp = {"id": "", "len": "", "time": "", "name": ""}
         tmp["id"], tmp["len"], tmp["time"] = id, str(random.randint(1, 10)), str(current_day())
-        # pipes = self.pipeQueue.get()
-        # self.sendQueue.put(("bot", "users.get", {"user_ids": str(id)}, "CallBack", pipes))
+        # pipes = pipeQueue.get()
+        # sendQueue.put(("bot", "users.get", {"user_ids": str(id)}, "CallBack", pipes))
         # nm_tmp = pipes["end"].recv()
         # pipes["end"].send("banana")
         print("Sending request")
@@ -103,7 +103,7 @@ def delta(event, connection):
         print("NONE")
         sys.stdout.flush()
 
-        new_chel = self.gen_new(id)
+        new_chel = gen_new(id)
         if new_chel == 0:
             returnValue = [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
                                         "message": "Боти не можуть користуватися цим ботом!",
@@ -230,7 +230,7 @@ def sound(event, connection):
     f.close()
     string = str(event["message"]["peer_id"])
     return [("bot", "messages.send", {"peer_id": string,
-                                    "message": self.rand_gachi_text(),
+                                    "message": rand_gachi_text(),
                                     "attachment": f"audio{-193557157}_{str(random.choice(arr_track))}",
                                     "random_id": random.randint(1, 2147483647)}, "OneWay")]
 
