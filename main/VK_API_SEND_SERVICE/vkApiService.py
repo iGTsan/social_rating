@@ -134,6 +134,8 @@ def restfulApiReader(innerQueue):
     @app.route('/', methods=['GET'])
     def event():
         event = request.get_json()
+        print(event)
+        sys.stdout.flush()
         pipe = multiprocessing.Pipe()
         event.append(pipe)
         innerQueue.put(event)
