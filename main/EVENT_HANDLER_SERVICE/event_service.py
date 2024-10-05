@@ -18,6 +18,10 @@ def start_event(target, event):
         innerQueue.put(request)
 
 def gen_new(id):
+    print("HELLO FROM GENNEW")
+    sys.stdout.flush()
+
+
     id = str(id)
     if id[0] == '-':
         return 0
