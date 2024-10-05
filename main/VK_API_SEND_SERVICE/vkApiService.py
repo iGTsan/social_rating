@@ -146,8 +146,6 @@ def restfulApiReader(innerQueue):
 
 if __name__ == "__main__":
 
-    channel.queue_declare(queue='sendQueue')
-
     isLocal = int(sys.argv[1])
     isProdigy = int(sys.argv[2])
     debug = int(sys.argv[3])
