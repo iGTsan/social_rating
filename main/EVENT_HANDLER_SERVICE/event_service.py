@@ -1,11 +1,12 @@
 import sys, pika, json, concurrent.futures, multiprocessing
-import random
+import random, requests
 from utilities import *
 
 threadPool = None
 channel = None
 connection_pool = None
 innerQueue = None
+apiServiceURL = "vk_api_send:5000"
 
 def start_event(target, event):
     #print(event)
@@ -24,10 +25,15 @@ def gen_new(id):
         id = str(id)
         tmp = {"id": "", "len": "", "time": "", "name": ""}
         tmp["id"], tmp["len"], tmp["time"] = id, str(random.randint(1, 10)), str(current_day())
-        pipes = self.pipeQueue.get()
-        self.sendQueue.put(("bot", "users.get", {"user_ids": str(id)}, "CallBack", pipes))
-        nm_tmp = pipes["end"].recv()
-        pipes["end"].send("banana")
+        # pipes = self.pipeQueue.get()
+        # self.sendQueue.put(("bot", "users.get", {"user_ids": str(id)}, "CallBack", pipes))
+        # nm_tmp = pipes["end"].recv()
+        # pipes["end"].send("banana")
+        data = ("bot", "users.get", {"user_ids": str(id)}, "CallBack")
+        nm_tmp = requests.get(apiServiceURL, params=data)
+        print(nm_tmp)
+        sys.stdout.flush()
+
         name = nm_tmp[0]["first_name"] + " " + nm_tmp[0]["last_name"]
         tmp["name"] = str(name)
         if tmp["name"][-12:] == " | ВКонтакте":

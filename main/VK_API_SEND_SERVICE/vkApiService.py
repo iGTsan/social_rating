@@ -94,26 +94,22 @@ def callback_MQ(ch, method, properties, body):
     innerQueue.put(request)
 
 def prosessRequest(request):
-    try:
-        if debug and request[1] != "messages.send":
-            print("sending", request)
-            sys.stdout.flush()
-
-        if request[0] == "bot":
-            if request[3] == "OneWay":
-                API.safe_executer(request, 0, "execute")
-            else:
-                threadPool.submit(API.safe_executer, request, 0, "execute_cb")
-        elif request[0] == "admin":
-            if request[3] == "OneWay":
-                API.safe_executer(request, 1, "execute")
-            else:
-                threadPool.submit(API.safe_executer, request, 1, "execute_cb")
-        else:
-            threadPool.submit(API.safe_executer, request, 1, "is_admin")
-    except Exception as shit:
-        print("apiService", shit, request)
+    if debug and request[1] != "messages.send":
+        print("sending", request)
         sys.stdout.flush()
+
+    if request[0] == "bot":
+        if request[3] == "OneWay":
+            API.safe_executer(request, 0, "execute")
+        else:
+            threadPool.submit(API.safe_executer, request, 0, "execute_cb")
+    elif request[0] == "admin":
+        if request[3] == "OneWay":
+            API.safe_executer(request, 1, "execute")
+        else:
+            threadPool.submit(API.safe_executer, request, 1, "execute_cb")
+    else:
+        threadPool.submit(API.safe_executer, request, 1, "is_admin")
 
 def rabbitQueueReader(innerQueue):
     while True:
@@ -139,8 +135,9 @@ def restfulApiReader(innerQueue):
     def event():
         event = request.get_json()
         pipe = multiprocessing.Pipe()
+        event.append(pipe)
         innerQueue.put(event)
-        return "OK"
+        return pipe[1].recv()
 
     app.run(debug=False, host='0.0.0.0', port=5000)
 
@@ -159,5 +156,11 @@ if __name__ == "__main__":
     rabbitQueueReaderProcess.start()
 
     while True:
-        data = innerQueue.get()
-        prosessRequest(data)
+        try:
+            while True:
+                data = innerQueue.get()
+                prosessRequest(data)
+        except Exception as shit:
+            API = ApiService(isProdigy)
+            print("vkApiService", shit)
+            sys.stdout.flush()
