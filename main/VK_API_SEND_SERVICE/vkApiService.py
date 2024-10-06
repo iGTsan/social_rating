@@ -105,12 +105,12 @@ def prosessRequest(request):
         if request[3] == "OneWay":
             API.safe_executer(request, 0, "execute")
         else:
-            threadPool.submit(API.safe_executer, request, 0, "execute_cb")
+            API.safe_executer(request, 0, "execute_cb")
     elif request[0] == "admin":
         if request[3] == "OneWay":
             API.safe_executer(request, 1, "execute")
         else:
-            threadPool.submit(API.safe_executer, request, 1, "execute_cb")
+            API.safe_executer( request, 1, "execute_cb")
     else:
         threadPool.submit(API.safe_executer, request, 1, "is_admin")
 
