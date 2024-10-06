@@ -136,6 +136,8 @@ def restfulApiReader(innerQueue):
 
     @app.route("/", methods=["GET"])
     async def event(request: Request):
+        print("HELLO FROM STARLETTE")
+        sys.stdout.flush()
         event = await request.json()
         print("Received:", event)
         sys.stdout.flush()
@@ -148,7 +150,7 @@ def restfulApiReader(innerQueue):
 
         return JSONResponse(response)
 
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=7331)
 
 if __name__ == "__main__":
 

@@ -26,8 +26,6 @@ services:
     build:
       context: ./VK_API_SEND_SERVICE
     restart: always
-    ports:
-      - 5000:5000
     environment:
       - DEBUG=${DEBUG}
       - PRODIGY=${PRODIGY}
