@@ -2,6 +2,7 @@ import vk_api, multiprocessing, time, sys, pika, concurrent.futures, json
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+import uvicorn
 
 innerQueue = multiprocessing.Queue()
 isLocal = None
@@ -141,13 +142,12 @@ def restfulApiReader(innerQueue):
         pipe = multiprocessing.Pipe()
         event.append(pipe)
         innerQueue.put(event)
-        return pipe[1].recv()
 
         # Process data
-        response = {"status": "success"}
+        response = {"data": pipe[1].recv()}
 
         return JSONResponse(response)
-    import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=5000)
 
 if __name__ == "__main__":
