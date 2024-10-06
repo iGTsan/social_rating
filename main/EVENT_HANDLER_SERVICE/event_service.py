@@ -37,12 +37,13 @@ def gen_new(id):
         sys.stdout.flush()
         data = ("bot", "users.get", {"user_ids": str(id)}, "CallBack")
         nm_tmp = requests.post(apiServiceURL, json=json.dumps(data))
-        print(nm_tmp)
-        print(nm_tmp.text)
-        print(nm_tmp.json())
-        print(nm_tmp.json()["data"][0])
-        print(nm_tmp.json()["data"][0]["first_name"])
-        print("Got data")
+        # print(nm_tmp)
+        # print(nm_tmp.text)
+        # print(nm_tmp.json())
+        # print(nm_tmp.json()["data"][0])
+        # print(nm_tmp.json()["data"][0]["first_name"])
+        nm_tmp = nm_tmp.json()["data"][0]
+        print("Got data", nm_tmp)
         sys.stdout.flush()
 
         name = nm_tmp[0]["first_name"] + " " + nm_tmp[0]["last_name"]
