@@ -131,7 +131,7 @@ def rabbitQueueReader(innerQueue):
 def restfulApiReader(innerQueue):
     app = Flask(__name__)
 
-    @app.route('/cb', methods=['GET'])
+    @app.route('/')
     def event():
         print("HELLO FROM CB")
         sys.stdout.flush()

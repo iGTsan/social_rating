@@ -6,7 +6,7 @@ threadPool = None
 channel = None
 connection_pool = None
 innerQueue = None
-apiServiceURL = "vk_api_send/cb:5000"
+apiServiceURL = "vk_api_send:5000"
 
 def start_event(target, event):
     #print(event)
@@ -38,6 +38,7 @@ def gen_new(id):
         data = ("bot", "users.get", {"user_ids": str(id)}, "CallBack")
         nm_tmp = requests.get(apiServiceURL, params=data)
         print(nm_tmp)
+        print("Got data")
         sys.stdout.flush()
 
         name = nm_tmp[0]["first_name"] + " " + nm_tmp[0]["last_name"]

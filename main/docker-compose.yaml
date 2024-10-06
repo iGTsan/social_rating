@@ -22,7 +22,7 @@ services:
       - ./DB_SERVICE:/docker-entrypoint-initdb.d
   
   vk_api_send:
-    container_name: dick_kraft_bot_vk_api_send
+    container_name: vk_api_send
     build:
       context: ./VK_API_SEND_SERVICE
     restart: always
@@ -49,7 +49,7 @@ services:
   #     - rabbitmq
 
   event_handler:
-    container_name: dick_kraft_bot_event_handler
+    container_name: event_handler
     build:
       context: ./EVENT_HANDLER_SERVICE
     restart: always
@@ -62,7 +62,7 @@ services:
       - rabbitmq
 
   vk_api_event:
-    container_name: dick_kraft_bot_vk_api_event
+    container_name: vk_api_event
     build:
       context: ./VK_API_EVENT_SERVICE
     restart: always
