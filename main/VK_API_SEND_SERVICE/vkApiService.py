@@ -167,6 +167,8 @@ if __name__ == "__main__":
     restfulApiReaderProcess.start()
     rabbitQueueReaderProcess.start()
 
+    threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=32)
+
     print("API_SEND_SERVICE STARTED")
     sys.stdout.flush()
 
