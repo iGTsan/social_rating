@@ -148,7 +148,7 @@ def restfulApiReader(innerQueue):
         innerQueue.put(event)
 
         # Process data
-        response = {"data": pipeED.recv()}
+        response = json.dumps(pipeED.recv())
         print("Response:", response)
         sys.stdout.flush()
 

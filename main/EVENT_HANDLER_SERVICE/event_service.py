@@ -41,6 +41,7 @@ def gen_new(id):
         print(nm_tmp.text)
         print(nm_tmp.json())
         print("Got data")
+        print(json.loads(nm_tmp))
         sys.stdout.flush()
 
         name = nm_tmp[0]["first_name"] + " " + nm_tmp[0]["last_name"]
