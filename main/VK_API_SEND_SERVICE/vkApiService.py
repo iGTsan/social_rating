@@ -142,12 +142,13 @@ def restfulApiReader(innerQueue):
         event = json.loads(data)
         print("Received:", event)
         sys.stdout.flush()
-        pipe = multiprocessing.Pipe()
-        event.append(pipe)
+        pipeST, pipeED = multiprocessing.Pipe()
+        tmp = {"start" : pipeST, "end" : pipeED}
+        event.append(tmp)
         innerQueue.put(event)
 
         # Process data
-        response = {"data": pipe[1].recv()}
+        response = {"data": pipeED.recv()}
 
         return JSONResponse(response)
 
