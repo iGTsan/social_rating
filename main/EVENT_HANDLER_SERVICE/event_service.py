@@ -50,6 +50,9 @@ def gen_new(id):
         tmp["name"] = str(name)
         if tmp["name"][-12:] == " | ВКонтакте":
             tmp["name"] = tmp["name"][:-12]
+
+        print(tmp)
+        sys.stdout.flush() 
         return tmp
 
 def delta(event, connection):
@@ -125,6 +128,8 @@ def delta(event, connection):
             cursor.execute("INSERT INTO basechel (peerid, id, len, time, name, delta) VALUES(%s, %s, %s, %s, %s, %s)", tchel)
             connection.commit()
     cursor.close()
+    print(returnValue)
+    sys.stdout.flush() 
     return returnValue
 
 def top_all(event, connection):
@@ -375,34 +380,3 @@ if __name__ == "__main__":
     sys.stdout.flush()
 
     channel.start_consuming()
-
-    # while True:
-    #     try:
-    #         while True:
-
-    #             event = eventQueue.get(True)
-
-    #             if debug and event["message"]["text"][0] == "/":
-    #                 threadPool.submit(start_event, TechRab, event)
-    #                 continue
-
-    #             if event["message"]["text"].lower() == "/писюн":
-    #                 threadPool.submit(start_event, delta, event)
-    #             elif event["message"]["text"].lower() == "/топ":
-    #                 threadPool.submit(start_event, top, event)
-    #             elif event["message"]["text"].lower() == "/топ_все":
-    #                 threadPool.submit(start_event, top_all, event)
-    #             elif event["message"]["text"].lower() == "/ролл":
-    #                 threadPool.submit(start_event, roll, event)
-    #             elif event["message"]["text"].lower() == "/чат":
-    #                 threadPool.submit(start_event, summarry, event)
-    #             elif event["message"]["text"].lower() == "/микс":
-    #                 threadPool.submit(start_event, sound, event)
-    #             elif event["message"]["text"].lower() == "/мой_писюн":
-    #                 threadPool.submit(start_event, my_cock, event)
-    #             elif event["message"]["text"].lower() == "/кострация":
-    #                 threadPool.submit(start_event, remove_cock, event)
-    #             break
-
-    #     except Exception as shit:
-    #         print("eventManager", shit, event)

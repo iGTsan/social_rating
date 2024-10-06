@@ -179,7 +179,7 @@ if __name__ == "__main__":
         try:
             while True:
                 data = innerQueue.get()
-                print(data)
+                print("MQ QE", data)
                 sys.stdout.flush()
                 prosessRequest(data)
         except Exception as shit:
