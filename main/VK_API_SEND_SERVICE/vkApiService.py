@@ -134,7 +134,7 @@ def rabbitQueueReader(innerQueue):
 def restfulApiReader(innerQueue):
     app = Starlette()
 
-    @app.route("/", methods=["GET"])
+    @app.route("/api", methods=["GET"])
     async def event(request: Request):
         print("HELLO FROM STARLETTE")
         sys.stdout.flush()
