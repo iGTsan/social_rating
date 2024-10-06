@@ -36,7 +36,7 @@ def gen_new(id):
         print("Sending request")
         sys.stdout.flush()
         data = ("bot", "users.get", {"user_ids": str(id)}, "CallBack")
-        nm_tmp = requests.post(apiServiceURL, json=json.dumps(data))
+        nm_tmp = requests.post(apiServiceURL, json=json.dumps(data))["data"]
         print(nm_tmp)
         print(nm_tmp.text)
         print(nm_tmp.json())
