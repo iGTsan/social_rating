@@ -42,7 +42,7 @@ def gen_new(id):
         # print(nm_tmp.json())
         # print(nm_tmp.json()["data"][0])
         # print(nm_tmp.json()["data"][0]["first_name"])
-        nm_tmp = nm_tmp.json()["data"][0]
+        nm_tmp = nm_tmp.json()["data"]
         print("Got data", nm_tmp)
         sys.stdout.flush()
 
