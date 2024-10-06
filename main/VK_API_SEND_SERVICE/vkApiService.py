@@ -134,11 +134,11 @@ def rabbitQueueReader(innerQueue):
 def restfulApiReader(innerQueue):
     app = Starlette()
 
-    @app.route("/api", methods=["GET"])
+    @app.route("/api", methods=["POST"])
     async def event(request: Request):
         print("HELLO FROM STARLETTE")
         sys.stdout.flush()
-        event = await request.json()
+        event = await request.body()
         print("Received:", event)
         sys.stdout.flush()
         pipe = multiprocessing.Pipe()
