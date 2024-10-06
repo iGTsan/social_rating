@@ -6,7 +6,7 @@ threadPool = None
 channel = None
 connection_pool = None
 innerQueue = None
-apiServiceURL = "vk_api_send:5000"
+apiServiceURL = "http://vk_api_send:5000"
 
 def start_event(target, event):
     #print(event)

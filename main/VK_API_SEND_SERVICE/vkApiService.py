@@ -1,5 +1,7 @@
 import vk_api, multiprocessing, time, sys, pika, concurrent.futures, json
-from flask import Flask
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 innerQueue = multiprocessing.Queue()
 isLocal = None
@@ -129,21 +131,24 @@ def rabbitQueueReader(innerQueue):
     channel.start_consuming()
 
 def restfulApiReader(innerQueue):
-    app = Flask(__name__)
+    app = Starlette()
 
-    @app.route('/')
-    def event():
-        print("HELLO FROM CB")
-        sys.stdout.flush()
-        event = request.get_json()
-        print(event)
+    @app.route("/", methods=["GET"])
+    async def event(request: Request):
+        event = await request.json()
+        print("Received:", event)
         sys.stdout.flush()
         pipe = multiprocessing.Pipe()
         event.append(pipe)
         innerQueue.put(event)
         return pipe[1].recv()
 
-    app.run(debug=True, host='0.0.0.0', port=5000)
+        # Process data
+        response = {"status": "success"}
+
+        return JSONResponse(response)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5000)
 
 if __name__ == "__main__":
 
