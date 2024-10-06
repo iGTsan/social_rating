@@ -138,7 +138,8 @@ def restfulApiReader(innerQueue):
     async def event(request: Request):
         print("HELLO FROM STARLETTE")
         sys.stdout.flush()
-        event = await request.json()
+        data = await request.json()
+        event = json.loads(data)
         print("Received:", event)
         sys.stdout.flush()
         pipe = multiprocessing.Pipe()
