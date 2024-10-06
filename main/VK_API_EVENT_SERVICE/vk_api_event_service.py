@@ -109,22 +109,23 @@ if __name__ == "__main__":
         except Exception as fuck:
             try:
                 connection.close()
-                while True:
-                    try:
-                        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
-                        channel = connection.channel()
-                        break
-                    except Exception:
-                        print("Failed to connect to RabbitMQ")
-                        sys.stdout.flush()
-                        time.sleep(2)
-                        continue
-
-                channel.queue_declare(queue='eventQueue')
-                channel.queue_declare(queue='sendQueue')
             except Exception as shit:
-                print("ну иди выключи компьютер")
+                print("conndrop", shit)
                 
+            while True:
+                try:
+                    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+                    channel = connection.channel()
+                    break
+                except Exception:
+                    print("Failed to connect to RabbitMQ")
+                    sys.stdout.flush()
+                    time.sleep(2)
+                    continue
+
+            channel.queue_declare(queue='eventQueue')
+            channel.queue_declare(queue='sendQueue')
+
             try:
                 LP = AutificationMain(isProdigy)
                 print("LP update")
