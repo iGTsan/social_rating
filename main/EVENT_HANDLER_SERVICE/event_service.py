@@ -7,6 +7,7 @@ channel = None
 connection_pool = None
 innerQueue = None
 apiServiceURL = "http://vk_api_send:7331/api"
+requests.post(apiServiceURL)
 
 def start_event(target, event):
     #print(event)
@@ -36,7 +37,7 @@ def gen_new(id):
         print("Sending request")
         sys.stdout.flush()
         data = ("bot", "users.get", {"user_ids": str(id)}, "CallBack")
-        nm_tmp = requests.post(apiServiceURL, data=data)
+        nm_tmp = requests.post(apiServiceURL)
         print(nm_tmp)
         print("Got data")
         sys.stdout.flush()
