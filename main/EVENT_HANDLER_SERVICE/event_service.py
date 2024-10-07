@@ -237,14 +237,14 @@ def summarry(event, connection):
                                 "random_id": 0}, "OneWay")]
 
 def sound(event, connection):
-    f = open('tracks.txt', 'r')
-    arr_track = f.readlines()
-    f.close()
-    string = str(event["message"]["peer_id"])
-    return [("bot", "messages.send", {"peer_id": string,
-                                    "message": rand_gachi_text(),
-                                    "attachment": f"audio{-193557157}_{str(random.choice(arr_track))}",
-                                    "random_id": random.randint(1, 2147483647)}, "OneWay")]
+    with open ('tracks.txt', 'w') as f:
+        arr_track = f.readlines()
+        f.close()
+        string = str(event["message"]["peer_id"])
+        return [("bot", "messages.send", {"peer_id": string,
+                                        "message": rand_gachi_text(),
+                                        "attachment": f"audio{-193557157}_{str(random.choice(arr_track))}",
+                                        "random_id": random.randint(1, 2147483647)}, "OneWay")]
 
 def my_cock(event, connection):
     cursor = connection.cursor()
