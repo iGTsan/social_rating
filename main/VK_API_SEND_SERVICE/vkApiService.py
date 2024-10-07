@@ -94,6 +94,8 @@ class ApiService:
 
 def callback_MQ(ch, method, properties, body):
     request = json.loads(body)
+    print("Received:", request)
+    sys.stdout.flush()
     innerQueue.put(request)
 
 def prosessRequest(request):
