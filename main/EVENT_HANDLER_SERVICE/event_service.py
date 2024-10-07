@@ -239,7 +239,7 @@ def summarry(event, connection):
 def sound(event, connection):
     print("HELLO FROM SOUND")
     sys.stdout.flush() 
-    with open ('tracks.txt', 'w') as f:
+    with open ('tracks.txt', 'r') as f:
         arr_track = f.readlines()
         string = str(event["message"]["peer_id"])
         return [("bot", "messages.send", {"peer_id": string,
