@@ -237,9 +237,10 @@ def summarry(event, connection):
                                 "random_id": 0}, "OneWay")]
 
 def sound(event, connection):
+    print("HELLO FROM SOUND")
+    sys.stdout.flush() 
     with open ('tracks.txt', 'w') as f:
         arr_track = f.readlines()
-        f.close()
         string = str(event["message"]["peer_id"])
         return [("bot", "messages.send", {"peer_id": string,
                                         "message": rand_gachi_text(),
