@@ -94,7 +94,7 @@ class ApiService:
 
 def callback_MQ(ch, method, properties, body):
     request = json.loads(body)
-    print("Received:", request)
+    print("Received by MQ:", request)
     sys.stdout.flush()
     innerQueue.put(request)
 
@@ -118,20 +118,27 @@ def prosessRequest(request):
 
 def rabbitQueueReader(innerQueue):
     while True:
-        try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
-            channel = connection.channel()
-            break
-        except Exception:
-            print("Failed to connect to RabbitMQ")
+        try: 
+            while True:
+                try:
+                    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+                    channel = connection.channel()
+                    break
+                except Exception:
+                    print("Failed to connect to RabbitMQ")
+                    sys.stdout.flush()
+                    time.sleep(2)
+                    continue
+            channel.queue_declare(queue='sendQueue')
+            channel.basic_consume(queue='sendQueue',
+                            auto_ack=True,
+                            on_message_callback=callback_MQ)
+            channel.start_consuming()
+        except Exception as shit:
+            print("rabbitQueueReader", shit)
             sys.stdout.flush()
-            time.sleep(2)
+            time.sleep(1)
             continue
-    channel.queue_declare(queue='sendQueue')
-    channel.basic_consume(queue='sendQueue',
-                      auto_ack=True,
-                      on_message_callback=callback_MQ)
-    channel.start_consuming()
 
 def restfulApiReader(innerQueue):
     app = Starlette()
@@ -142,7 +149,7 @@ def restfulApiReader(innerQueue):
         sys.stdout.flush()
         data = await request.json()
         event = json.loads(data)
-        print("Received:", event)
+        print("Received by REST:", event)
         sys.stdout.flush()
         pipeST, pipeED = multiprocessing.Pipe()
         tmp = {"start" : pipeST, "end" : pipeED}
@@ -181,7 +188,7 @@ if __name__ == "__main__":
         try:
             while True:
                 data = innerQueue.get()
-                print("MQ QE", data)
+                print("innnerQueue QE", data)
                 sys.stdout.flush()
                 prosessRequest(data)
         except Exception as shit:
