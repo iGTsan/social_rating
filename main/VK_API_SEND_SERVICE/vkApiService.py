@@ -95,9 +95,9 @@ class ApiService:
 def callback_MQ(ch, method, properties, body):
     try:
         request = json.loads(body)
+        innerQueue.put(request)
         print("Received by MQ:", request)
         sys.stdout.flush()
-        innerQueue.put(request)
     except Exception as fuck:
         print("MQ error", fuck)
         sys.stdout.flush()
@@ -197,5 +197,6 @@ if __name__ == "__main__":
                 prosessRequest(data)
         except Exception as shit:
             API = ApiService(isProdigy)
+            time.sleep(1)
             print("vkApiService", shit)
             sys.stdout.flush()
