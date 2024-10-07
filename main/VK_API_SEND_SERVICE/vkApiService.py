@@ -56,6 +56,7 @@ class ApiService:
                 flag = 0
             except Exception as cal:
                 print(cal, "in safe executer", event)
+                sys.stdout.flush()
                 flag -= 1
                 time.sleep(1)
 
@@ -75,21 +76,15 @@ class ApiService:
         else:
             tmp = self.vk.method(event[1], event[2])
         pipe.send(tmp)
-        pipe.recv()
-        self.pipeQueue.put(event[4])
 
     def is_admin(self, event, admin):
         try:
             self.vk.method(event[1], event[2])
             pipe = event[4]["start"]
             pipe.send(True)
-            pipe.recv()
-            self.pipeQueue.put(event[4])
         except Exception:
             pipe = event[4]["start"]
             pipe.send(False)
-            pipe.recv()
-            self.pipeQueue.put(event[4])
 
 
 def callback_MQ(ch, method, properties, body):
