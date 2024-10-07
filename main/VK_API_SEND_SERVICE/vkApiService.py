@@ -93,10 +93,14 @@ class ApiService:
 
 
 def callback_MQ(ch, method, properties, body):
-    request = json.loads(body)
-    print("Received by MQ:", request)
-    sys.stdout.flush()
-    innerQueue.put(request)
+    try:
+        request = json.loads(body)
+        print("Received by MQ:", request)
+        sys.stdout.flush()
+        innerQueue.put(request)
+    except Exception as fuck:
+        print("MQ error", fuck)
+        sys.stdout.flush()
 
 def prosessRequest(request):
     if debug and request[1] != "messages.send":
