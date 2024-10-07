@@ -15,6 +15,7 @@ def start_event(target, event):
     #print(returnValue)
     connection_pool.putconn(connection)
     for request in returnValue:
+        print("inner Queue", request)
         innerQueue.put(request)
 
 def gen_new(id):
@@ -327,6 +328,8 @@ def innerQueueManager(innerQueue):
 
             while True:
                 event = innerQueue.get()
+                print("innerQueueManager", event)
+                sys.stdout.flush()
                 channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(event))
                 
         except Exception as shit:
