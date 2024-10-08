@@ -46,11 +46,11 @@ class Daily:
                     connection_remove_old = self.connection_pool.getconn()
 
                     st, ed = multiprocessing.Pipe()
-                    pipes_top_print = {"start": st, "end": ed}
+                    pipes_top_chel = {"start": st, "end": ed}
                     st, ed = multiprocessing.Pipe()
                     pipes_top_print = {"start": st, "end": ed}
                     st, ed = multiprocessing.Pipe()
-                    pipes_top_print = {"start": st, "end": ed}
+                    pipes_remove_old = {"start": st, "end": ed}
 
                     self.threads.submit(self.top_chel, connection_top_chel, pipes_top_chel)
                     self.threads.submit(self.top_print, connection_top_print, pipes_top_print)
