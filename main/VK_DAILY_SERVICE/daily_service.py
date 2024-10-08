@@ -45,9 +45,12 @@ class Daily:
                     connection_top_chel = self.connection_pool.getconn()
                     connection_remove_old = self.connection_pool.getconn()
 
-                    pipes_top_print = multiprocessing.Pipe()
-                    pipes_top_chel = self.pipeQueue.get()
-                    pipes_remove_old = self.pipeQueue.get()
+                    st, ed = multiprocessing.Pipe()
+                    pipes_top_print = {"start": st, "end": ed}
+                    st, ed = multiprocessing.Pipe()
+                    pipes_top_print = {"start": st, "end": ed}
+                    st, ed = multiprocessing.Pipe()
+                    pipes_top_print = {"start": st, "end": ed}
 
                     self.threads.submit(self.top_chel, connection_top_chel, pipes_top_chel)
                     self.threads.submit(self.top_print, connection_top_print, pipes_top_print)
@@ -58,12 +61,16 @@ class Daily:
                             pipes_top_print["end"].recv() and \
                             pipes_remove_old["end"].recv():
 
+                        pipes_top_print["start"].close()
+                        pipes_top_chel["start"].close()
+                        pipes_remove_old["start"].close()
+                        pipes_top_print["end"].close()
+                        pipes_top_chel["end"].close()
+                        pipes_remove_old["end"].close()
+
                         self.connection_pool.putconn(connection_top_chel)
                         self.connection_pool.putconn(connection_top_print)
                         self.connection_pool.putconn(connection_remove_old)
-                        self.pipeQueue.put(pipes_top_print)
-                        self.pipeQueue.put(pipes_top_chel)
-                        self.pipeQueue.put(connection_remove_old)
                         print("Done SUKA!!!")
             except Exception as shit:
                 print(shit, "from DAILY")

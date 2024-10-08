@@ -157,6 +157,8 @@ def restfulApiReader(innerQueue):
 
         # Process data
         response = {"data": pipeED.recv()}
+        pipeST.close()
+        pipeED.close()
         print("Response:", response)
         sys.stdout.flush()
 
