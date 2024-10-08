@@ -1,4 +1,4 @@
-import requests, vkApiService, concurrent.futures
+import requests, concurrent.futures, time, sys, pika, json, multiprocessing, re, os, random, datetime, threading, concurrent.futures, json
 from utilities import *
 from bs4 import BeautifulSoup
 
@@ -205,7 +205,7 @@ if __name__ == '__main__':
     isProdigy = int(sys.argv[2])
     debug = int(sys.argv[3])
     try:
-        tasks = daily.Daily(isProdigy, isLocal, debug)
+        tasks = Daily(isProdigy, isLocal, debug)
         tasks.start()
     except Exception as shit:
         print("dailyTasks", shit)
