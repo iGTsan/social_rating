@@ -2,55 +2,70 @@ import requests, vkApiService, concurrent.futures
 from utilities import *
 from bs4 import BeautifulSoup
 
+apiServiceURL = "http://vk_api_send:7331/api"
 
 class Daily:
-    def __init__(self, isProdigy, isLocal, sendQueue, pipeQueue, debug):
+    def __init__(self, isProdigy, isLocal, debug):
         self.debug = debug
         self.isProdigy = isProdigy
         self.connection_pool = StartDB(isProdigy, isLocal)
-        self.sendQueue = sendQueue
-        self.pipeQueue = pipeQueue
         self.threads = concurrent.futures.ThreadPoolExecutor(max_workers=5)
         self.run_arr = getRUN_arr(isProdigy)
+        while True:
+            try:
+                self.connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+                self.channel = connection.channel()
+                break
+            except Exception:
+                print("Failed to connect to RabbitMQ")
+                sys.stdout.flush()
+                time.sleep(2)
+                continue
+
+        self.channel.queue_declare(queue='sendQueue')
 
     def start(self):
         while True:
             time.sleep(1)
-            f = open('timing.txt', 'r')
-            TMP = int(f.readline())
-            f.close()
-            if current_hour() == 12 and TMP - current_day() < 0 or self.debug:
-                self.debug = 0
-                print("TOPS")
-                TMP = current_day()
-                f = open('timing.txt', 'w')
-                f.write(str(current_day()))
+            try:
+                f = open('timing.txt', 'r')
+                TMP = int(f.readline())
                 f.close()
+                if current_hour() == 12 and TMP - current_day() < 0 or self.debug:
+                    self.debug = 0
+                    print("TOPS")
+                    TMP = current_day()
+                    f = open('timing.txt', 'w')
+                    f.write(str(current_day()))
+                    f.close()
 
-                connection_top_print = self.connection_pool.getconn()
-                connection_top_chel = self.connection_pool.getconn()
-                connection_remove_old = self.connection_pool.getconn()
+                    connection_top_print = self.connection_pool.getconn()
+                    connection_top_chel = self.connection_pool.getconn()
+                    connection_remove_old = self.connection_pool.getconn()
 
-                pipes_top_print = self.pipeQueue.get()
-                pipes_top_chel = self.pipeQueue.get()
-                pipes_remove_old = self.pipeQueue.get()
+                    pipes_top_print = multiprocessing.Pipe()
+                    pipes_top_chel = self.pipeQueue.get()
+                    pipes_remove_old = self.pipeQueue.get()
 
-                self.threads.submit(self.top_chel, connection_top_chel, pipes_top_chel)
-                self.threads.submit(self.top_print, connection_top_print, pipes_top_print)
-                self.threads.submit(self.remove_old, connection_remove_old, pipes_remove_old)
-                self.threads.submit(self.reload_audio)
+                    self.threads.submit(self.top_chel, connection_top_chel, pipes_top_chel)
+                    self.threads.submit(self.top_print, connection_top_print, pipes_top_print)
+                    self.threads.submit(self.remove_old, connection_remove_old, pipes_remove_old)
+                    self.threads.submit(self.reload_audio)
 
-                if pipes_top_chel["end"].recv() and \
-                        pipes_top_print["end"].recv() and \
-                        pipes_remove_old["end"].recv():
+                    if pipes_top_chel["end"].recv() and \
+                            pipes_top_print["end"].recv() and \
+                            pipes_remove_old["end"].recv():
 
-                    self.connection_pool.putconn(connection_top_chel)
-                    self.connection_pool.putconn(connection_top_print)
-                    self.connection_pool.putconn(connection_remove_old)
-                    self.pipeQueue.put(pipes_top_print)
-                    self.pipeQueue.put(pipes_top_chel)
-                    self.pipeQueue.put(connection_remove_old)
-                    print("Done SUKA!!!")
+                        self.connection_pool.putconn(connection_top_chel)
+                        self.connection_pool.putconn(connection_top_print)
+                        self.connection_pool.putconn(connection_remove_old)
+                        self.pipeQueue.put(pipes_top_print)
+                        self.pipeQueue.put(pipes_top_chel)
+                        self.pipeQueue.put(connection_remove_old)
+                        print("Done SUKA!!!")
+            except Exception as shit:
+                print(shit, "from DAILY")
+                sys.stdout.flush()
 
 
 
@@ -72,10 +87,8 @@ class Daily:
         pipes_remove_old["start"].send("pepper")
 
     def is_admin(self, peer_id):
-        pipes = self.pipeQueue.get()
-        self.sendQueue.put(("is_admin_check", "messages.getConversationMembers", {"peer_id": peer_id}, "CallBack", pipes))
-        check = pipes["end"].recv()
-        pipes["end"].send("watermelon")
+        data = ("is_admin_check", "messages.getConversationMembers", {"peer_id": peer_id}, "CallBack")
+        check = requests.post(apiServiceURL, json=json.dumps(data)).json()["data"]
         return check
 
     def del_post(self, name):
@@ -85,8 +98,11 @@ class Daily:
         tmp = tmp[0].split()
         tmp = tmp[1][:-1]
         f.close()
-        self.sendQueue.put(("admin", "wall.delete",
-                        {"owner_id": "-" + self.run_arr[1], "post_id": tmp}, "OneWay"))
+
+        event = ("admin", "wall.delete",
+                        {"owner_id": "-" + self.run_arr[1], "post_id": tmp}, "OneWay")
+
+        channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(event))
 
     def top_chel(self, connection, pipes_top_chel):
         print("top_chel")
@@ -97,10 +113,8 @@ class Daily:
         for i in chel:
             if self.is_admin(i[gpeerid]):
                 besed_id = i[gpeerid]
-                pipes = self.pipeQueue.get()
-                self.sendQueue.put(("bot", "messages.getConversationsById", {"peer_ids": besed_id}, "CallBack", pipes))
-                name = pipes["end"].recv()
-                pipes["end"].send("banana")
+                data = ("bot", "messages.getConversationsById", {"peer_ids": besed_id}, "CallBack")
+                name = requests.post(apiServiceURL, json=json.dumps(data)).json()["data"]
                 name = name["items"][0]["chat_settings"]["title"]
             else:
                 name = "-"
@@ -116,14 +130,12 @@ class Daily:
             s += str(str(i + 1) + ". " + j[gname] + " - " + str(j[glen]) + " см." + " (" + ans[i][1] + ")" + '\n')
         if self.isProdigy == False:
             self.del_post("Chels_ID.txt")
-        pipes = self.pipeQueue.get()
-        self.sendQueue.put(("admin", "wall.post", {
+        data = ("admin", "wall.post", {
             "owner_id": "-" + self.run_arr[1],
             "message": s,
             "from_group": 1
-        }, "CallBack", pipes))
-        ID = pipes["end"].recv()
-        pipes["end"].send("banana")
+        }, "CallBack")
+        ID = requests.post(apiServiceURL, json=json.dumps(data)).json()["data"]
         if self.isProdigy == False:
             f = open('Chels_ID.txt', 'w')
             f.write(str(ID))
@@ -150,10 +162,8 @@ class Daily:
         for i in range(len(ans)):
             peerid = ans[i][0]
             if self.is_admin(peerid):
-                pipes = self.pipeQueue.get()
-                self.sendQueue.put(("bot", "messages.getConversationsById", {"peer_ids": peerid}, "CallBack", pipes))
-                name = pipes["end"].recv()
-                pipes["end"].send("banana")
+                data = ("bot", "messages.getConversationsById", {"peer_ids": peerid}, "CallBack")
+                name = requests.post(apiServiceURL, json=json.dumps(data)).json()["data"]
                 name = name["items"][0]["chat_settings"]["title"]
                 tmp.append([ans[i][1], name])
             if len(tmp) == 9:
@@ -164,14 +174,12 @@ class Daily:
             tmpe += str(i + 1) + ". " + str(tmp[i][-1]) + ", довжина писюна вашого чату - " + str(tmp[i][0]) + " см." + "\n"
         if self.isProdigy == False:
             self.del_post("Chats_ID.txt")
-        pipes = self.pipeQueue.get()
-        self.sendQueue.put(("admin", "wall.post", {
+        data = ("admin", "wall.post", {
             "owner_id": "-" + self.run_arr[1],
             "message": tmpe,
             "from_group": 1
-        }, "CallBack", pipes))
-        ID = pipes["end"].recv()
-        pipes["end"].send("banana")
+        }, "CallBack")
+        ID = requests.post(apiServiceURL, json=json.dumps(data)).json()["data"]
         if self.isProdigy == False:
             f = open('Chats_ID.txt', 'w')
             f.write(str(ID))
@@ -188,3 +196,15 @@ class Daily:
         for i in chel:
             cursor.execute("DELETE FROM basechel WHERE peerid=%s and id=%s", (i[gpeerid], i[gid]))
         connection.commit()
+
+if __name__ == '__main__':
+    print("dailyTasks")
+    sys.stdout.flush()
+    isLocal = int(sys.argv[1])
+    isProdigy = int(sys.argv[2])
+    debug = int(sys.argv[3])
+    try:
+        tasks = daily.Daily(isProdigy, isLocal, debug)
+        tasks.start()
+    except Exception as shit:
+        print("dailyTasks", shit)
