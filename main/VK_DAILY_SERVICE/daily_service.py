@@ -3,6 +3,18 @@ from utilities import *
 from bs4 import BeautifulSoup
 
 apiServiceURL = "http://vk_api_send:7331/api"
+while True:
+            try:
+                connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+                channel = connection.channel()
+                break
+            except Exception:
+                print("Failed to connect to RabbitMQ")
+                sys.stdout.flush()
+                time.sleep(2)
+                continue
+
+channel.queue_declare(queue='sendQueue')
 
 class Daily:
     def __init__(self, isProdigy, isLocal, debug):
@@ -11,18 +23,7 @@ class Daily:
         self.connection_pool = StartDB(isProdigy, isLocal)
         self.threads = concurrent.futures.ThreadPoolExecutor(max_workers=5)
         self.run_arr = getRUN_arr(isProdigy)
-        while True:
-            try:
-                self.connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
-                self.channel = connection.channel()
-                break
-            except Exception:
-                print("Failed to connect to RabbitMQ")
-                sys.stdout.flush()
-                time.sleep(2)
-                continue
-
-        self.channel.queue_declare(queue='sendQueue')
+        
 
     def start(self):
         while True:
