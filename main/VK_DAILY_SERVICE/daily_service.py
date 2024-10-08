@@ -3,6 +3,8 @@ from utilities import *
 from bs4 import BeautifulSoup
 
 apiServiceURL = "http://vk_api_send:7331/api"
+channel = None
+connection = None
 
 class Daily:
     def __init__(self, isProdigy, isLocal, debug):
