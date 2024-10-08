@@ -13,8 +13,8 @@ class Daily:
         self.run_arr = getRUN_arr(isProdigy)
         while True:
             try:
-                self.connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
-                self.channel = connection.channel()
+                connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+                channel = connection.channel()
                 break
             except Exception:
                 print("Failed to connect to RabbitMQ")
@@ -22,7 +22,7 @@ class Daily:
                 time.sleep(2)
                 continue
 
-        self.channel.queue_declare(queue='sendQueue')
+        channel.queue_declare(queue='sendQueue')
 
     def start(self):
         while True:
