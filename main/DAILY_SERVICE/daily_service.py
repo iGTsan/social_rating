@@ -26,7 +26,8 @@ class Daily:
 
     def start(self):
         while True:
-            time.sleep(1)
+            channel.basic_publish(exchange='', routing_key='heartbeat', body='heartbeat')
+            time.sleep(5)
             try:
                 f = open('timing.txt', 'r')
                 TMP = int(f.readline())
