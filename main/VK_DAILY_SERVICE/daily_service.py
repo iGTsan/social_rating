@@ -168,7 +168,7 @@ class Daily:
                 tops.update({peerid: nowlen + ln})
         ans = [[i, j] for i, j in sorted(tops.items(), key=lambda item: -item[1])]
         tmp = []
-        for i in range(len(ans)):
+        for i in range(min(len(ans), 100)):
             peerid = ans[i][0]
             if self.is_admin(peerid):
                 data = ("bot", "messages.getConversationsById", {"peer_ids": peerid}, "CallBack")
