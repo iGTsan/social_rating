@@ -1,4 +1,0 @@
-vk-api
-pika
-starlette
-uvicorn

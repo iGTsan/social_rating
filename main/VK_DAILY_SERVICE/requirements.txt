@@ -1,4 +1,0 @@
-psycopg2-binary
-vk-api
-pika
-bs4
