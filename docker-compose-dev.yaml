@@ -2,36 +2,36 @@ version: "3.8"
 
 services:
 
-  rabbitmq_dev:
-    image: rabbitmq:3-management
+  rabbitmq:
+    image: rabbitmq:3-management 
     ports:
-      - 5672:5672
-      - 15672:15672
+    #  - 5672:5672
+      - 15673:15672
     networks:
-      - dkb_dev
+      - dkb
 
-  db_dev:
-    container_name: db_dev
+  db:
+    container_name: db
     image: postgres:16
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PW} 
-    ports:
-      - 5432:5432
+    #ports:
+    #  - 5432:5432
     restart: always
     networks:
-      - dkb_dev
+      - dkb
     volumes:
       - ./containers_data/db:/var/lib/postgresql/data
       - ./DB_SERVICE:/docker-entrypoint-initdb.d
   
-  vk_api_send_dev:
-    container_name: vk_api_send_dev
+  vk_api_send:
+    container_name: vk_api_send
     build:
       context: ./VK_API_SEND_SERVICE
     restart: always
     networks:
-      - dkb_dev
+      - dkb
     ports:
       - 7331:7331
     environment:
@@ -39,70 +39,70 @@ services:
       - PRODIGY=${PRODIGY}
       - LOCAL=${LOCAL}
     depends_on:
-      - rabbitmq_dev
+      - rabbitmq
     
-  vk_daily_dev:
-    container_name: dick_kraft_bot_vk_daily_dev
+  vk_daily:
+    container_name: dick_kraft_bot_vk_daily
     build:
       context: ./VK_DAILY_SERVICE
     restart: always
     networks:
-      - dkb_dev
+      - dkb
     environment:
       - DEBUG=${DEBUG}
       - PRODIGY=${PRODIGY}
       - LOCAL=${LOCAL}
     depends_on:
-      - db_dev
-      - rabbitmq_dev
+      - db
+      - rabbitmq
 
-  event_handler_dev:
-    container_name: event_handler_dev
+  event_handler:
+    container_name: event_handler
     build:
       context: ./EVENT_HANDLER_SERVICE
     restart: always
     networks:
-      - dkb_dev
+      - dkb
     environment:
       - DEBUG=${DEBUG}
       - PRODIGY=${PRODIGY}
       - LOCAL=${LOCAL}
     depends_on:
-      - db_dev
-      - rabbitmq_dev
+      - db
+      - rabbitmq
 
-  vk_api_event_dev:
-    container_name: vk_api_event_dev
+  vk_api_event:
+    container_name: vk_api_event
     build:
       context: ./VK_API_EVENT_SERVICE
     restart: always
     networks:
-      - dkb_dev
+      - dkb
     environment:
       - DEBUG=${DEBUG}
       - PRODIGY=${PRODIGY}
       - LOCAL=${LOCAL}
     depends_on:
-      - db_dev
-      - rabbitmq_dev
+      - db
+      - rabbitmq
 
-  pgadmin_dev:
-    container_name: pgadmin_dev
+  pgadmin:
+    container_name: pgadmin 
     image: dpage/pgadmin4:latest
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_MAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PW} 
     ports:
-      - 5050:80
+      - 5051:80
     restart: always
     networks:
-      - dkb_dev
+      - dkb
     user: "${UID}:${GID}"
     volumes:
       - ./containers_data/pgadmin:/var/lib/pgadmin
     depends_on:
-      - db_dev
+      - db
 
 networks:
-  dkb_dev:
+  dkb:
     driver: bridge
