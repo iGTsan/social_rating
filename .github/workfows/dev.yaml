@@ -1,0 +1,15 @@
+name: Build and deploy dev
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+
+  build:
+
+    runs-on: self-hosted
+    steps:
+      - name: Print message
+        run: echo "Action started"
