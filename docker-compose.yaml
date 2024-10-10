@@ -5,8 +5,8 @@ services:
   rabbitmq:
     image: rabbitmq:3-management 
     ports:
-      - 5672:5672
-      - 15672:15672
+    #  - 5672:5672
+      - 15673:15672
     networks:
       - dkb
 
@@ -16,8 +16,8 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PW} 
-    ports:
-      - 5432:5432
+    #ports:
+    #  - 5432:5432
     restart: always
     networks:
       - dkb
@@ -93,7 +93,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_MAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PW} 
     ports:
-      - 5050:80
+      - 5051:80
     restart: always
     networks:
       - dkb
