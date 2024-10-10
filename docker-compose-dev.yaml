@@ -32,8 +32,8 @@ services:
     restart: always
     networks:
       - dkb_dev
-    ports:
-      - 7331:7331
+    #ports:
+    #  - 7331:7331
     environment:
       - DEBUG=${DEBUG}
       - PRODIGY=${PRODIGY}
