@@ -39,7 +39,7 @@ services:
       - PRODIGY=${PRODIGY}
       - LOCAL=${LOCAL}
     depends_on:
-      - rabbitmq
+      - rabbitmq_dev
     
   vk_daily_dev:
     container_name: dick_kraft_bot_vk_daily_dev
@@ -53,8 +53,8 @@ services:
       - PRODIGY=${PRODIGY}
       - LOCAL=${LOCAL}
     depends_on:
-      - db
-      - rabbitmq
+      - db_dev
+      - rabbitmq_dev
 
   event_handler_dev:
     container_name: event_handler_dev
@@ -68,8 +68,8 @@ services:
       - PRODIGY=${PRODIGY}
       - LOCAL=${LOCAL}
     depends_on:
-      - db
-      - rabbitmq
+      - db_dev
+      - rabbitmq_dev
 
   vk_api_event_dev:
     container_name: vk_api_event_dev
@@ -83,8 +83,8 @@ services:
       - PRODIGY=${PRODIGY}
       - LOCAL=${LOCAL}
     depends_on:
-      - db
-      - rabbitmq
+      - db_dev
+      - rabbitmq_dev
 
   pgadmin_dev:
     container_name: pgadmin_dev
@@ -101,7 +101,7 @@ services:
     volumes:
       - ./containers_data/pgadmin:/var/lib/pgadmin
     depends_on:
-      - db
+      - db_dev
 
 networks:
   dkb_dev:
