@@ -1,8 +1,5 @@
 version: "3.8"
 
-env_file:
-  - path: ./DEV_INIT_DATA/.env
-
 services:
 
   rabbitmq_dev:
