@@ -7,6 +7,14 @@
 
 # Описание архитектуры
 
+## Диаграмма ганта
+
+![alt text](docs/gant.png)
+
+## План проекта
+
+![alt text](docs/split.jpg)
+
 ## Диаграмма активностей
 
 ![alt text](docs/act.png)
@@ -26,6 +34,10 @@
 ## Диаграмма классов
 
 ![alt text](docs/class_uml.png)
+
+## Диаграмма последовательностей
+
+![alt text](docs/seq.jpg)
 
 ## Инструкция по развёртыванию
 1. git clone
