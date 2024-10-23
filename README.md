@@ -23,7 +23,7 @@
 
 ![alt text](docs/use_case.png)
 
-## Диаграмма класслв
+## Диаграмма классов
 
 ![alt text](docs/class_uml.png)
 
