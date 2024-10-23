@@ -93,8 +93,8 @@ def callback_MQ(ch, method, properties, body):
         innerQueue.put(request)
         print("Received by MQ:", request)
         sys.stdout.flush()
-    except Exception as fuck:
-        print("MQ error", fuck)
+    except Exception as excpt:
+        print("MQ error", excpt)
         sys.stdout.flush()
 
 def prosessRequest(request):
@@ -133,8 +133,8 @@ def rabbitQueueReader(innerQueue, isProdigy):
                             auto_ack=True,
                             on_message_callback=callback_MQ)
             channel.start_consuming()
-        except Exception as shit:
-            print("rabbitQueueReader", shit)
+        except Exception as excpt:
+            print("rabbitQueueReader", excpt)
             sys.stdout.flush()
             time.sleep(1)
             continue
@@ -192,8 +192,8 @@ if __name__ == "__main__":
                 print("innnerQueue QE", data)
                 sys.stdout.flush()
                 prosessRequest(data)
-        except Exception as shit:
+        except Exception as excpt:
             API = ApiService(isProdigy)
             time.sleep(1)
-            print("vkApiService", shit)
+            print("vkApiService", excpt)
             sys.stdout.flush()

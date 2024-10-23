@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-WORKDIR "/Dick_Kraft_Bot"
+WORKDIR "/social_rating_Kraft_Bot"
 
 COPY . ./
 

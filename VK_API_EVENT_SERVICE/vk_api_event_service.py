@@ -76,7 +76,7 @@ if __name__ == "__main__":
     # eventManagerProcess.start()
     # dailyTasksProcess.start()
 
-    commands = ["/писюн", "/топ", "/топ_все", "/ролл", "/чат", "/микс", "/мой_писюн", "/кострация"]
+    commands = ["/соціальный_рейтинг", "/топ", "/топ_все", "/ролл", "/чат", "/микс", "/мой_соціальный_рейтинг", "/маргинализация"]
 
     while True:
         print("Ready")
@@ -95,7 +95,7 @@ if __name__ == "__main__":
                         if text == "" or text[0] == "/" or text == "начать":
                             request = ("bot", "messages.send",
                                       {"peer_id": event.object["message"]["from_id"],
-                                       "message": "Дружище, наш бот работает только в беседах. Здесь ты можешь задать вопрос разработчикам. Подпишись на нашу группу, чтобы не пропускать новости разработки и ежедневные топы бесед, а пока держи гайд: https://vk.com/@dickkraftbot-itak-prishlo-vremya-napisat-podrobnyi-gaid-na-bota",
+                                       "message": "Дружище, наш бот работает только в беседах. Здесь ты можешь задать вопрос разработчикам. Подпишись на нашу группу, чтобы не пропускать новости разработки и ежедневные топы бесед, а пока держи гайд: https://vk.com/@social_rating_kraftbot-itak-prishlo-vremya-napisat-podrobnyi-gaid-na-bota",
                                        "random_id": random.randint(1, 2147483647)}, "OneWay")
                             channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(list(event.request)))
                             #sendQueue.put(request)
@@ -104,13 +104,13 @@ if __name__ == "__main__":
                 elif event.type == "donut_subscription_create":
                     print("Мама, ноый донат)")
                 elif event.type == "donut_subscription_expired":
-                    print("Бля, минус дон(")
+                    print("Блин, минус дон(")
 
-        except Exception as fuck:
+        except Exception as excpt:
             try:
                 connection.close()
-            except Exception as shit:
-                print("conndrop", shit)
+            except Exception as excpt:
+                print("conndrop", excpt)
                 
             while True:
                 try:
@@ -129,8 +129,8 @@ if __name__ == "__main__":
             try:
                 LP = AutificationMain(isProdigy)
                 print("LP update")
-            except Exception as shit:
+            except Exception as excpt:
                 print("ну иди выключи компьютер")
-            print(fuck)
+            print(excpt)
 
         time.sleep(1)

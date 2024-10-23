@@ -62,8 +62,8 @@ class Daily:
                         self.connection_pool.putconn(connection_top_print)
                         self.connection_pool.putconn(connection_remove_old)
                         print("Done SUKA!!!")
-            except Exception as shit:
-                print(shit, "from DAILY")
+            except Exception as excpt:
+                print(excpt, "from DAILY")
                 sys.stdout.flush()
 
 
@@ -126,7 +126,7 @@ class Daily:
         s = "Лучшие челы сегодня:" + "\n" + "\n"
         for i in range(len(ans)):
             j = ans[i][0]
-            s += str(str(i + 1) + ". " + j[gname] + " - " + str(j[glen]) + " см." + " (" + ans[i][1] + ")" + '\n')
+            s += str(str(i + 1) + ". " + j[gname] + " - " + str(j[glen]) + " очков." + " (" + ans[i][1] + ")" + '\n')
         if self.isProdigy == False:
             self.del_post("Chels_ID.txt")
         data = ("admin", "wall.post", {
@@ -170,7 +170,7 @@ class Daily:
         tmpe = "Лучшие чаты сегодня:" + "\n" + "\n"
 
         for i in range(len(tmp)):
-            tmpe += str(i + 1) + ". " + str(tmp[i][-1]) + ", довжина писюна вашого чату - " + str(tmp[i][0]) + " см." + "\n"
+            tmpe += str(i + 1) + ". " + str(tmp[i][-1]) + ", довжина соціального рейтинга вашого чату - " + str(tmp[i][0]) + " очков." + "\n"
         if self.isProdigy == False:
             self.del_post("Chats_ID.txt")
         data = ("admin", "wall.post", {
@@ -222,5 +222,5 @@ if __name__ == '__main__':
     try:
         tasks = Daily(isProdigy, isLocal, debug)
         tasks.start()
-    except Exception as shit:
-        print("dailyTasks", shit)
+    except Exception as excpt:
+        print("dailyTasks", excpt)

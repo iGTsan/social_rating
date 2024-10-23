@@ -42,7 +42,7 @@ services:
       - rabbitmq
     
   vk_daily:
-    container_name: dick_kraft_bot_vk_daily
+    container_name: social_rating_kraft_bot_vk_daily
     build:
       context: ./VK_DAILY_SERVICE
     restart: always

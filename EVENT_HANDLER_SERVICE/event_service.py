@@ -89,19 +89,19 @@ def delta(event, connection):
         if fin + ans <= 0:
             fin = 0
             returnValue = [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
-                                        "message": chel[gname] + ", у тебе відвалилася піська(",
+                                        "message": chel[gname] + ", у тебе відвалилася соціальный рейтинг(",
                                         "random_id": 0}, "OneWay")]
         else:
             fin = fin + ans
             if ans > 0:
                 returnValue = [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
-                                            "message": chel[gname] + ", твій пісюн виріс на " + str(
-                                                ans) + " см. Тепер його довжина " + str(fin) + " см.",
+                                            "message": chel[gname] + ", твій соціальный рейтинг виріс на " + str(
+                                                ans) + " очков. Тепер його довжина " + str(fin) + " очков.",
                                             "random_id": 0}, "OneWay")]
             else:
                 returnValue = [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
-                                            "message": chel[gname] + ", твій пісюн зменшився на " + str(
-                                                -ans) + " см. Тепер його довжина " + str(fin) + " см.",
+                                            "message": chel[gname] + ", твій соціальный рейтинг зменшився на " + str(
+                                                -ans) + " очков. Тепер його довжина " + str(fin) + " очков.",
                                             "random_id": 0}, "OneWay")]
         chel[glen] = int(fin)
         chel[gtime] = int(current_day())
@@ -120,9 +120,9 @@ def delta(event, connection):
                                         "random_id": 0}, "OneWay")]
         else:
             returnValue = [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
-                                        "message": new_chel["name"] + ", Вітаю в грі писюн, ти зіграв в перший раз і "
-                                                                        "зараз твій пісюн має довжину " + new_chel[
-                                                        "len"] + " см.",
+                                        "message": new_chel["name"] + ", Вітаю в грі соціальный рейтинг, ти зіграв в перший раз і "
+                                                                        "зараз твій соціальный рейтинг має довжину " + new_chel[
+                                                        "len"] + " очков.",
                                         "random_id": 0}, "OneWay")]
             tchel = (
                 int(string), int(id), int(new_chel["len"]), int(new_chel["time"]), str(new_chel["name"]), 0)
@@ -153,7 +153,7 @@ def top_all(event, connection):
                 if counter > 4000:
                     flag = 1
                     break
-                ans += str(tmp+1) + ". " + pr[i][gname] + " - " + str(pr[i][glen]) + " см." + " \n"
+                ans += str(tmp+1) + ". " + pr[i][gname] + " - " + str(pr[i][glen]) + " очков." + " \n"
                 counter = len(ans)
                 tmp += 1
             if ans != "":
@@ -175,7 +175,7 @@ def top(event, connection):
     pr = sorted(chel, key=lambda tmp: -int(tmp[glen]))
     ans = ""
     for i in range(min(10, len(pr))):
-        ans += str(i+1) + ". " + pr[i][gname] + " - " + str(pr[i][glen]) + " см." + " \n"
+        ans += str(i+1) + ". " + pr[i][gname] + " - " + str(pr[i][glen]) + " очков." + " \n"
     cursor.close()
     if ans != "":
         returnValue = [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
@@ -232,8 +232,8 @@ def summarry(event, connection):
         summ += int(i[glen])
     cursor.close()
     return [("bot", "messages.send", {"peer_id": event["message"]["peer_id"],
-                                "message": "Довжина писюна вашого чату " + str(
-                                    summ) + " см.",
+                                "message": "Довжина соціального рейтинга вашого чату " + str(
+                                    summ) + " очков.",
                                 "random_id": 0}, "OneWay")]
 
 def sound(event, connection):
@@ -247,7 +247,7 @@ def sound(event, connection):
                                         "attachment": f"audio{-193557157}_{str(random.choice(arr_track))}",
                                         "random_id": random.randint(1, 2147483647)}, "OneWay")]
 
-def my_cock(event, connection):
+def my_rating(event, connection):
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
     id = str(event["message"]["from_id"])
@@ -256,15 +256,15 @@ def my_cock(event, connection):
     if chel == None:
         cursor.close()
         return [("bot", "messages.send", {"peer_id": string,
-                                    "message": "Пробач, брате, але в тебе ще немає писюна",
+                                    "message": "Пробач, брате, але в тебе ще немає соціального рейтинга",
                                     "random_id": 0}, "OneWay")]
     else:
         cursor.close()
         return [("bot", "messages.send", {"peer_id": string,
-                                    "message": chel[gname] + ", довжина твого писюна " + str(chel[glen]) + " см.",
+                                    "message": chel[gname] + ", довжина твого соціального рейтинга " + str(chel[glen]) + " очков.",
                                     "random_id": 0}, "OneWay")]
 
-def remove_cock(event, connection):
+def remove_rating(event, connection):
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
     id = str(event["message"]["from_id"])
@@ -272,12 +272,12 @@ def remove_cock(event, connection):
     chel = cursor.fetchone()
     if chel == None:
         returnValue = [("bot", "messages.send", {"peer_id": string,
-                                    "message": "Пробач, брате, але в тебе ще немає писюна",
+                                    "message": "Пробач, брате, але в тебе ще немає соціального рейтинга",
                                     "random_id": 0}, "OneWay")]
     else:
         cursor.execute("DELETE FROM basechel WHERE peerid=%s and id=%s", (int(string), int(id)))
         returnValue = [("bot", "messages.send", {"peer_id": string,
-                                    "message": chel[gname] + ", вітаю, ти відрізав собі писюн. Назавжди!",
+                                    "message": chel[gname] + ", вітаю, ти відрізав собі соціальный рейтинг. Назавжди!",
                                     "random_id": 0}, "OneWay")]
     connection.commit()
     cursor.close()
@@ -291,7 +291,7 @@ def callback(ch, method, properties, body):
         if debug and event["message"]["text"][0] == "/":
             threadPool.submit(start_event, TechRab, event)
 
-        elif event["message"]["text"].lower() == "/писюн":
+        elif event["message"]["text"].lower() == "/соціальный_рейтинг":
             threadPool.submit(start_event, delta, event)
         elif event["message"]["text"].lower() == "/топ":
             threadPool.submit(start_event, top, event)
@@ -303,12 +303,12 @@ def callback(ch, method, properties, body):
             threadPool.submit(start_event, summarry, event)
         elif event["message"]["text"].lower() == "/микс":
             threadPool.submit(start_event, sound, event)
-        elif event["message"]["text"].lower() == "/мой_писюн":
-            threadPool.submit(start_event, my_cock, event)
-        elif event["message"]["text"].lower() == "/кострация":
-            threadPool.submit(start_event, remove_cock, event)
-    except Exception as shit:
-        print(shit)
+        elif event["message"]["text"].lower() == "/мой_соціальный_рейтинг":
+            threadPool.submit(start_event, my_rating, event)
+        elif event["message"]["text"].lower() == "/маргинализация":
+            threadPool.submit(start_event, remove_rating, event)
+    except Exception as excpt:
+        print(excpt)
         sys.stdout.flush()
 
 def innerQueueManager(innerQueue, isProdigy):
@@ -333,8 +333,8 @@ def innerQueueManager(innerQueue, isProdigy):
                 sys.stdout.flush()
                 channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(event))
                 
-        except Exception as shit:
-            print("innerQueueManager", shit)
+        except Exception as excpt:
+            print("innerQueueManager", excpt)
             sys.stdout.flush()
 
 if __name__ == "__main__":
@@ -376,8 +376,8 @@ if __name__ == "__main__":
         threadPool.submit(start_event, roll, test_event)
         threadPool.submit(start_event, summarry, test_event)
         threadPool.submit(start_event, sound, test_event)
-        threadPool.submit(start_event, my_cock, test_event)
-        threadPool.submit(start_event, remove_cock, test_event)
+        threadPool.submit(start_event, my_rating, test_event)
+        threadPool.submit(start_event, remove_rating, test_event)
 
     channel.basic_consume(queue='eventQueue',
                       auto_ack=True,
