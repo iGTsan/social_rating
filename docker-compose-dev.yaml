@@ -9,6 +9,11 @@ services:
       - 15673:15672
     networks:
       - dkb_dev
+    command: >
+      sh -c "
+        rabbitmq-plugins enable --offline rabbitmq_prometheus &&
+        rabbitmq-server
+      "
 
   db_dev:
     container_name: db_dev
@@ -102,6 +107,28 @@ services:
       - ./containers_data/pgadmin:/var/lib/pgadmin
     depends_on:
       - db_dev
+      
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./PROMETHEUS:/etc/prometheus
+    ports:
+      - 9090:9090
+    networks:
+      - dkb_dev
+
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - ./GRAPHANA:/var/lib/grafana
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    networks:
+      - dkb_dev
+    depends_on:
+      - prometheus
 
 networks:
   dkb_dev:
