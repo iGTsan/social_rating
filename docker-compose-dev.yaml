@@ -34,7 +34,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 7777:8080
     networks:
       - dkb_dev
   
@@ -88,6 +88,21 @@ services:
     container_name: vk_api_event_dev
     build:
       context: ./VK_API_EVENT_SERVICE
+    restart: always
+    networks:
+      - dkb_dev
+    environment:
+      - DEBUG=${DEBUG}
+      - PRODIGY=${PRODIGY}
+      - LOCAL=${LOCAL}
+    depends_on:
+      - db_dev
+      - rabbitmq_dev
+
+  tg_api_event_dev:
+    container_name: tg_api_event_dev
+    build:
+      context: ./TG_API_EVENT_SERVICE
     restart: always
     networks:
       - dkb_dev
