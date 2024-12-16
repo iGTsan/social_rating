@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 elif event.type == "donut_subscription_expired":
                     print("Блин, минус дон(")
 
-        except Exception as excpt:
+        except Exception as excpt0:
             try:
                 connection.close()
             except Exception as excpt:
@@ -131,6 +131,6 @@ if __name__ == "__main__":
                 print("LP update")
             except Exception as excpt:
                 print("ну иди выключи компьютер")
-            print(excpt)
+            print(excpt0)
 
         time.sleep(1)
