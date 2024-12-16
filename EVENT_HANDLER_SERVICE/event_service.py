@@ -1,6 +1,7 @@
 import sys, pika, json, concurrent.futures, multiprocessing
 import random, requests
 from utilities import *
+from prometheus_client import start_http_server, Counter
 
 threadPool = None
 channel = None
@@ -8,8 +9,26 @@ connection_pool = None
 innerQueue = None
 apiServiceURL = None
 
+'''
+        elif event["message"]["text"].lower() == "/маргинализация":
+            threadPool.submit(start_event, remove_rating, event)
+'''
+PROMETHEUS_DATA = {
+    'event_counter' : Counter('event_counter', 'Number of events processed is called'),
+    'new_users_counter' : Counter('new_users_counter', 'Number of new users'),
+    'delta_counter' : Counter('delta_counter', 'Number of delta calls'),
+    'top_counter' : Counter('top_counter', 'Number of top calls'),
+    'top_all_counter' : Counter('top_all_counter', 'Number of top calls'),
+    'roll_counter' : Counter('roll_counter', 'Number of top all calls'),
+    'summarry_counter' : Counter('summarry_counter', 'Number of summarry calls'),
+    'sound_counter' : Counter('sound_counter', 'Number of sound calls'),
+    'my_rating_counter' : Counter('my_rating_counter', 'Number of my rating calls'),
+    'remove_rating_counter' : Counter('remove_rating_counter', 'Number of remove rating calls'),
+}
+
 def start_event(target, event):
     #print(event)
+    PROMETHEUS_DATA["event_counter"].inc()
     connection = connection_pool.getconn()
     returnValue = target(event, connection)
     #print(returnValue)
@@ -19,6 +38,7 @@ def start_event(target, event):
         innerQueue.put(request)
 
 def gen_new(id):
+    PROMETHEUS_DATA["new_users_counter"].inc()
     print("HELLO FROM GENNEW")
     sys.stdout.flush()
 
@@ -58,6 +78,7 @@ def gen_new(id):
 
 def delta(event, connection):
 
+    PROMETHEUS_DATA["delta_counter"].inc()
     print("HELLO FROM DELTA")
     sys.stdout.flush()
 
@@ -134,6 +155,7 @@ def delta(event, connection):
     return returnValue
 
 def top_all(event, connection):
+    PROMETHEUS_DATA["top_all_counter"].inc()
     returnValue = []
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
@@ -166,6 +188,7 @@ def top_all(event, connection):
     return returnValue
 
 def top(event, connection):
+    PROMETHEUS_DATA["top_counter"].inc()
     returnValue = []
     #print("123125456t436743")
     cursor = connection.cursor()
@@ -197,6 +220,7 @@ def TechRab(event, connection):
                                 "random_id": 0}, "OneWay")]
 
 def roll(event, connection):
+    PROMETHEUS_DATA["roll_counter"].inc()
     cursor = connection.cursor()
     id = str(event["message"]["from_id"])
     string = str(event["message"]["peer_id"])
@@ -223,6 +247,7 @@ def roll(event, connection):
                                     "random_id": 0}, "OneWay")]
 
 def summarry(event, connection):
+    PROMETHEUS_DATA["summarry_counter"].inc()
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
     cursor.execute("SELECT * FROM basechel WHERE peerid=%s", (int(string),))
@@ -237,6 +262,7 @@ def summarry(event, connection):
                                 "random_id": 0}, "OneWay")]
 
 def sound(event, connection):
+    PROMETHEUS_DATA["sound_counter"].inc()
     print("HELLO FROM SOUND")
     sys.stdout.flush() 
     with open ('tracks.txt', 'r') as f:
@@ -248,6 +274,7 @@ def sound(event, connection):
                                         "random_id": random.randint(1, 2147483647)}, "OneWay")]
 
 def my_rating(event, connection):
+    PROMETHEUS_DATA["my_rating_counter"].inc()
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
     id = str(event["message"]["from_id"])
@@ -265,6 +292,7 @@ def my_rating(event, connection):
                                     "random_id": 0}, "OneWay")]
 
 def remove_rating(event, connection):
+    PROMETHEUS_DATA["remove_rating_counter"].inc()
     cursor = connection.cursor()
     string = str(event["message"]["peer_id"])
     id = str(event["message"]["from_id"])
@@ -352,6 +380,16 @@ if __name__ == "__main__":
             break
         except Exception:
             print("Failed to connect to RabbitMQ")
+            sys.stdout.flush()
+            time.sleep(2)
+            continue
+
+    while True:
+        try:
+            start_http_server(8000)
+            break
+        except Exception:
+            print("Failed to start Prometheus client")
             sys.stdout.flush()
             time.sleep(2)
             continue
