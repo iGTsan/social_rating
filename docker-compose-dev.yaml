@@ -29,6 +29,14 @@ services:
     volumes:
       - ./containers_data/db:/var/lib/postgresql/data
       - ./DB_SERVICE:/docker-entrypoint-initdb.d
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - dkb_dev
   
   vk_api_send_dev:
     container_name: vk_api_send_dev
@@ -90,23 +98,6 @@ services:
     depends_on:
       - db_dev
       - rabbitmq_dev
-
-  pgadmin_dev:
-    container_name: pgadmin_dev
-    image: dpage/pgadmin4:latest
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_MAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PW} 
-    ports:
-      - 5051:80
-    restart: always
-    networks:
-      - dkb_dev
-    user: "${UID}:${GID}"
-    volumes:
-      - ./containers_data/pgadmin:/var/lib/pgadmin
-    depends_on:
-      - db_dev
       
   prometheus:
     image: prom/prometheus
