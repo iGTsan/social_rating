@@ -109,7 +109,6 @@ def gen_new(id):
 
 
 def delta(event, connection):
-
     PROMETHEUS_DATA["delta_counter"].inc()
     print("HELLO FROM DELTA")
     sys.stdout.flush()
@@ -158,7 +157,7 @@ def delta(event, connection):
                     {
                         "peer_id": event["message"]["peer_id"],
                         "message": chel[gname]
-                        + ", у тебе відвалилася соціальный рейтинг(",
+                                   + ", у тебе відвалилася соціальный рейтинг(",
                         "random_id": 0,
                     },
                     "OneWay",
@@ -174,11 +173,11 @@ def delta(event, connection):
                         {
                             "peer_id": event["message"]["peer_id"],
                             "message": chel[gname]
-                            + ", твій соціальный рейтинг виріс на "
-                            + str(ans)
-                            + " очков. Тепер його довжина "
-                            + str(fin)
-                            + " очков.",
+                                       + ", твій соціальный рейтинг виріс на "
+                                       + str(ans)
+                                       + " очков. Тепер його довжина "
+                                       + str(fin)
+                                       + " очков.",
                             "random_id": 0,
                         },
                         "OneWay",
@@ -192,11 +191,11 @@ def delta(event, connection):
                         {
                             "peer_id": event["message"]["peer_id"],
                             "message": chel[gname]
-                            + ", твій соціальный рейтинг зменшився на "
-                            + str(-ans)
-                            + " очков. Тепер його довжина "
-                            + str(fin)
-                            + " очков.",
+                                       + ", твій соціальный рейтинг зменшився на "
+                                       + str(-ans)
+                                       + " очков. Тепер його довжина "
+                                       + str(fin)
+                                       + " очков.",
                             "random_id": 0,
                         },
                         "OneWay",
@@ -240,10 +239,10 @@ def delta(event, connection):
                     {
                         "peer_id": event["message"]["peer_id"],
                         "message": new_chel["name"]
-                        + ", Вітаю в грі соціальный рейтинг, ти зіграв в перший раз і "
-                        "зараз твій соціальный рейтинг має довжину "
-                        + new_chel["len"]
-                        + " очков.",
+                                   + ", Вітаю в грі соціальный рейтинг, ти зіграв в перший раз і "
+                                     "зараз твій соціальный рейтинг має довжину "
+                                   + new_chel["len"]
+                                   + " очков.",
                         "random_id": 0,
                     },
                     "OneWay",
@@ -290,13 +289,13 @@ def top_all(event, connection):
                     flag = 1
                     break
                 ans += (
-                    str(tmp + 1)
-                    + ". "
-                    + pr[i][gname]
-                    + " - "
-                    + str(pr[i][glen])
-                    + " очков."
-                    + " \n"
+                        str(tmp + 1)
+                        + ". "
+                        + pr[i][gname]
+                        + " - "
+                        + str(pr[i][glen])
+                        + " очков."
+                        + " \n"
                 )
                 counter = len(ans)
                 tmp += 1
@@ -331,13 +330,13 @@ def top(event, connection):
     ans = ""
     for i in range(min(10, len(pr))):
         ans += (
-            str(i + 1)
-            + ". "
-            + pr[i][gname]
-            + " - "
-            + str(pr[i][glen])
-            + " очков."
-            + " \n"
+                str(i + 1)
+                + ". "
+                + pr[i][gname]
+                + " - "
+                + str(pr[i][glen])
+                + " очков."
+                + " \n"
         )
     cursor.close()
     if ans != "":
@@ -506,7 +505,7 @@ def roll(event, connection):
                 {
                     "peer_id": event["message"]["peer_id"],
                     "message": "Гарний хлопець получает случайное число(1-100):  "
-                    + chislo,
+                               + chislo,
                     "random_id": 0,
                 },
                 "OneWay",
@@ -520,8 +519,8 @@ def roll(event, connection):
                 {
                     "peer_id": event["message"]["peer_id"],
                     "message": chel[gname]
-                    + " получает случайное число(1-100):  "
-                    + chislo,
+                               + " получает случайное число(1-100):  "
+                               + chislo,
                     "random_id": 0,
                 },
                 "OneWay",
@@ -546,8 +545,8 @@ def summarry(event, connection):
             {
                 "peer_id": event["message"]["peer_id"],
                 "message": "Довжина соціального рейтинга вашого чату "
-                + str(summ)
-                + " очков.",
+                           + str(summ)
+                           + " очков.",
                 "random_id": 0,
             },
             "OneWay",
@@ -609,9 +608,9 @@ def my_rating(event, connection):
                 {
                     "peer_id": string,
                     "message": chel[gname]
-                    + ", довжина твого соціального рейтинга "
-                    + str(chel[glen])
-                    + " очков.",
+                               + ", довжина твого соціального рейтинга "
+                               + str(chel[glen])
+                               + " очков.",
                     "random_id": 0,
                 },
                 "OneWay",
@@ -652,7 +651,7 @@ def remove_rating(event, connection):
                 {
                     "peer_id": string,
                     "message": chel[gname]
-                    + ", вітаю, ти відрізав собі соціальный рейтинг. Назавжди!",
+                               + ", вітаю, ти відрізав собі соціальный рейтинг. Назавжди!",
                     "random_id": 0,
                 },
                 "OneWay",
