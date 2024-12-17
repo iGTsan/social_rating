@@ -2,7 +2,11 @@ import vk_api, multiprocessing, time, sys, pika, concurrent.futures, json
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+import time
+from prometheus_client import start_http_server, Histogram
 import uvicorn
+
+REQUEST_TIME = Histogram('vk_request_processing_seconds', 'Time spent processing request')
 
 innerQueue = multiprocessing.Queue()
 isLocal = None
@@ -59,6 +63,12 @@ class ApiService:
                 sys.stdout.flush()
                 flag -= 1
                 time.sleep(1)
+        request_time = time.time() - event[-1]["start_time"]
+        request_time *= 1000
+        sys.stdout.flush()
+        print("Request processing time = " + str(request_time) + " seconds")
+        sys.stdout.flush()
+        REQUEST_TIME.observe(request_time)
 
 
 
@@ -181,6 +191,16 @@ if __name__ == "__main__":
     rabbitQueueReaderProcess.start()
 
     threadPool = concurrent.futures.ThreadPoolExecutor(max_workers=32)
+
+    while True:
+        try:
+            start_http_server(8000)
+            break
+        except Exception:
+            print("Failed to start Prometheus client")
+            sys.stdout.flush()
+            time.sleep(2)
+            continue
 
     print("API_SEND_SERVICE STARTED")
     sys.stdout.flush()

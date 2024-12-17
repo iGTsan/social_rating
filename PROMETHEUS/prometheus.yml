@@ -8,4 +8,12 @@ scrape_configs:
   - job_name: 'rabbitmq'
     static_configs:
       - targets: ['rabbitmq_dev:15692']
+  - job_name: 'vk_api_send'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['vk_api_send_dev:8000']
+  - job_name: 'tg_api'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['tg_api_event_dev:8000']
 
