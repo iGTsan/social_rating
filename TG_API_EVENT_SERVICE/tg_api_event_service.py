@@ -66,19 +66,37 @@ def send_welcome(message):
         }
     }
 
-    try:
-        channel.basic_publish(
-            exchange="",
-            routing_key="eventQueue",
-            body=json.dumps(event),
-        )
-    except Exception as exp:
-        channel.queue_declare(queue="eventQueue")
-        channel.basic_publish(
-            exchange="",
-            routing_key="eventQueue",
-            body=json.dumps(event),
-        )
+    while True:
+        try:
+            channel.basic_publish(
+                exchange="",
+                routing_key="eventQueue",
+                body=json.dumps(event),
+            )
+            break
+        except Exception as exp:
+            while True:
+                try:
+                    sys.stdout.flush()
+                    connection = pika.BlockingConnection(
+                        pika.ConnectionParameters(
+                            "rabbitmq" if isProdigy == False else "rabbitmq_dev"
+                        )
+                    )
+                    channel = connection.channel()
+                    break
+                except Exception:
+                    print("Failed to connect to RabbitMQ")
+                    sys.stdout.flush()
+                    time.sleep(2)
+                    continue
+            channel.queue_declare(queue="eventQueue")
+            channel.basic_publish(
+                exchange="",
+                routing_key="eventQueue",
+                body=json.dumps(event),
+            )
+            time.sleep(0.5)
 
 
 def async_handle_answer(bot):
@@ -154,7 +172,6 @@ def async_handle_answer(bot):
 #         print("Блин, минус дон(")
 
 if __name__ == "__main__":
-
     while True:
         try:
             connection = pika.BlockingConnection(
