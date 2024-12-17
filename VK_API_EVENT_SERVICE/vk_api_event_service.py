@@ -1,5 +1,6 @@
 import random, vk_api, os, time, sys, pika, json
 from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
+import time
 
 
 def AutificationMain(isProdigy):
@@ -88,7 +89,8 @@ if __name__ == "__main__":
                     text = event.object["message"]["text"].lower()
                     if event.object["message"]["peer_id"] != event.object["message"]["from_id"]:
                         if text in commands:
-                            channel.basic_publish(exchange='', routing_key='eventQueue', body=json.dumps(dict(event.object)))
+                            start_time_dict = {"start_time": time.time()}
+                            channel.basic_publish(exchange='', routing_key='eventQueue', body=json.dumps(dict(event.object) | start_time_dict))
                             #eventQueue.put(dict(event.object))
 
                     elif event.object["message"]["peer_id"] == event.object["message"]["from_id"]:
