@@ -40,13 +40,18 @@ def start_event(target, event):
     connection_pool.putconn(connection)
     if not event["message"].get("username", None) is None:
         for request in returnValue:
-            tmp = request + tuple(["tg"])
+            tmp = request + tuple(["tg"]) + ({"start_time": event["start_time"]},)
+            sys.stdout.flush()
             print("inner Queue TG", tmp)
+            sys.stdout.flush()
             innerQueue.put(tmp)
     else:
         for request in returnValue:
-            print("inner Queue", request)
-            innerQueue.put(request)
+            tmp = request + ({"start_time": event["start_time"]},)
+            sys.stdout.flush()
+            print("inner Queue", tmp)
+            sys.stdout.flush()
+            innerQueue.put(tmp)
 
 
 def gen_new_tg(id):
@@ -660,6 +665,7 @@ def remove_rating(event, connection):
 
 def callback(ch, method, properties, body):
     event = json.loads(body)
+    sys.stdout.flush()
     print(" [x] Received %r" % event)
     sys.stdout.flush()
     try:
@@ -710,7 +716,7 @@ def innerQueueManager(innerQueue, isProdigy):
 
             while True:
                 event = innerQueue.get()
-                if event[-1] == "tg":
+                if event[-2] == "tg":
                     print("innerQueueManagerTG", event)
                     sys.stdout.flush()
                     channel.basic_publish(

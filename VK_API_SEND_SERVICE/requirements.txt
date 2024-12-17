@@ -2,3 +2,4 @@ vk-api
 pika
 starlette
 uvicorn
+prometheus_client

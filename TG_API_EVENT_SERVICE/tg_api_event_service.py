@@ -1,4 +1,8 @@
 import telebot, sys, pika, time, json, threading
+import time
+from prometheus_client import start_http_server, Histogram
+
+REQUEST_TIME = Histogram('tg_request_processing_seconds', 'Time spent processing request')
 
 
 # time.sleep(30)
@@ -63,7 +67,8 @@ def send_welcome(message):
             "text": message.text,
             "peer_id": message.chat.id,
             "username": message.from_user.username,
-        }
+        },
+        "start_time": time.time(),
     }
 
     try:
@@ -101,6 +106,12 @@ def async_handle_answer(bot):
     def callback(ch, method, properties, body):
         event = json.loads(body)
         bot.send_message(event[2]["peer_id"], event[2]["message"])
+        request_time = time.time() - event[-1]["start_time"]
+        request_time *= 1000
+        sys.stdout.flush()
+        print("Request processing time = " + str(request_time) + " seconds")
+        sys.stdout.flush()
+        REQUEST_TIME.observe(request_time)
 
     channel.basic_consume(
         queue="sendQueueTG", auto_ack=True, on_message_callback=callback
@@ -172,6 +183,16 @@ if __name__ == "__main__":
 
     channel.queue_declare(queue="eventQueue")
     channel.queue_declare(queue="sendQueueTG")
+    12
+    while True:
+        try:
+            start_http_server(8000)
+            break
+        except Exception:
+            print("Failed to start Prometheus client")
+            sys.stdout.flush()
+            time.sleep(2)
+            continue
 
     print("Ready")
     sys.stdout.flush()
