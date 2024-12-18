@@ -39,6 +39,22 @@
 
 ![alt text](docs/seq.jpg)
 
+## Дашборд обработчика событий
+
+![alt text](docs/Event_handler_dash.jpg)
+
+## Дашборд, показывающий среднее время обработки запросов за последнюю минуту
+
+![alt text](docs/Reques_processing_time_dashboard.jpg)
+
+## Дашборд RabbitMQ
+
+![alt text](docs/RabbitMQ_dash.jpg)
+
+## Еще дашборд RabbitMQ
+
+![alt text](docs/RabbitMQ_dash2.jpg)
+
 ## Инструкция по развёртыванию
 1. git clone
 2. cd social_rating
