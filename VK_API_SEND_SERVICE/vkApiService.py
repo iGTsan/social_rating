@@ -6,7 +6,9 @@ import time
 from prometheus_client import start_http_server, Histogram
 import uvicorn
 
-REQUEST_TIME = Histogram('vk_request_processing_seconds', 'Time spent processing request')
+REQUEST_TIME = Histogram(
+    "vk_request_processing_seconds", "Time spent processing request"
+)
 
 innerQueue = multiprocessing.Queue()
 isLocal = None
@@ -14,26 +16,29 @@ isProdigy = None
 debug = None
 API = None
 threadPool = None
+
+
 def Autification(isProdigy):
     if isProdigy:
-        RUN = open('RUNProdigy.txt', 'r')
-        RUN_arr = RUN.readlines()
-        vk = vk_api.VkApi(token=RUN_arr[0][:-1])
+        with open("/run/secrets/VK_API_TOKEN", "r") as token_file:
+            token = token_file.read().strip()
+        vk = vk_api.VkApi(token=token)
         vk._auth_token()
-        RUN.close()
         return vk
     else:
-        RUN = open('RUN.txt', 'r')
-        RUN_arr = RUN.readlines()
-        vk = vk_api.VkApi(token=RUN_arr[0][:-1])
+        with open("RUN.txt", "r") as run_file:
+            RUN_arr = run_file.readlines()
+            token = RUN_arr[0].strip()
+        vk = vk_api.VkApi(token=token)
         vk._auth_token()
-        RUN.close()
         return vk
 
 
 def adminAuth():
-    vk_admin = vk_api.VkApi('+79163447672',
-                            token="vk1.a.lEFtR2sMDqZDSfZIJ6wGjr1Tr56tDt0QFUUgX248ET51rrBQw12gxFqXxLTanLOeCvAMg6P2ezUyCW3myZItZKcgO6KRaWq81sT1mpjPU9BEFU0BTdvtQ6VR9AeQ3CrzX84fXG9BOC0p3P0I6F0kJbdUfZhPNk33h2XG-DZUFvlYd-5j6ZBg06FBiSj5n8UO2scrm8XUdzdLUIppQlNHcA")
+    vk_admin = vk_api.VkApi(
+        "+79163447672",
+        token="vk1.a.lEFtR2sMDqZDSfZIJ6wGjr1Tr56tDt0QFUUgX248ET51rrBQw12gxFqXxLTanLOeCvAMg6P2ezUyCW3myZItZKcgO6KRaWq81sT1mpjPU9BEFU0BTdvtQ6VR9AeQ3CrzX84fXG9BOC0p3P0I6F0kJbdUfZhPNk33h2XG-DZUFvlYd-5j6ZBg06FBiSj5n8UO2scrm8XUdzdLUIppQlNHcA",
+    )
     vk_admin.get_api()
     return vk_admin
 
@@ -70,9 +75,6 @@ class ApiService:
         sys.stdout.flush()
         REQUEST_TIME.observe(request_time)
 
-
-
-
     def execute(self, event, admin):
         if admin:
             self.vk_admin.method(event[1], event[2])
@@ -107,6 +109,7 @@ def callback_MQ(ch, method, properties, body):
         print("MQ error", excpt)
         sys.stdout.flush()
 
+
 def prosessRequest(request):
     if debug and request[1] != "messages.send":
         print("sending", request)
@@ -121,16 +124,21 @@ def prosessRequest(request):
         if request[3] == "OneWay":
             API.safe_executer(request, 1, "execute")
         else:
-            API.safe_executer( request, 1, "execute_cb")
+            API.safe_executer(request, 1, "execute_cb")
     else:
         threadPool.submit(API.safe_executer, request, 1, "is_admin")
 
+
 def rabbitQueueReader(innerQueue, isProdigy):
     while True:
-        try: 
+        try:
             while True:
                 try:
-                    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq' if isProdigy == False else 'rabbitmq_dev'))
+                    connection = pika.BlockingConnection(
+                        pika.ConnectionParameters(
+                            "rabbitmq" if isProdigy == False else "rabbitmq_dev"
+                        )
+                    )
                     channel = connection.channel()
                     break
                 except Exception:
@@ -138,16 +146,17 @@ def rabbitQueueReader(innerQueue, isProdigy):
                     sys.stdout.flush()
                     time.sleep(2)
                     continue
-            channel.queue_declare(queue='sendQueue')
-            channel.basic_consume(queue='sendQueue',
-                            auto_ack=True,
-                            on_message_callback=callback_MQ)
+            channel.queue_declare(queue="sendQueue")
+            channel.basic_consume(
+                queue="sendQueue", auto_ack=True, on_message_callback=callback_MQ
+            )
             channel.start_consuming()
         except Exception as excpt:
             print("rabbitQueueReader", excpt)
             sys.stdout.flush()
             time.sleep(1)
             continue
+
 
 def restfulApiReader(innerQueue):
     app = Starlette()
@@ -161,7 +170,7 @@ def restfulApiReader(innerQueue):
         print("Received by REST:", event)
         sys.stdout.flush()
         pipeST, pipeED = multiprocessing.Pipe()
-        tmp = {"start" : pipeST, "end" : pipeED}
+        tmp = {"start": pipeST, "end": pipeED}
         event.append(tmp)
         innerQueue.put(event)
 
@@ -176,6 +185,7 @@ def restfulApiReader(innerQueue):
 
     uvicorn.run(app, host="0.0.0.0", port=7331)
 
+
 if __name__ == "__main__":
 
     isLocal = int(sys.argv[1])
@@ -184,8 +194,16 @@ if __name__ == "__main__":
 
     API = ApiService(isProdigy)
 
-    restfulApiReaderProcess = multiprocessing.Process(target=restfulApiReader, args=(innerQueue,))
-    rabbitQueueReaderProcess = multiprocessing.Process(target=rabbitQueueReader, args=(innerQueue, isProdigy,))
+    restfulApiReaderProcess = multiprocessing.Process(
+        target=restfulApiReader, args=(innerQueue,)
+    )
+    rabbitQueueReaderProcess = multiprocessing.Process(
+        target=rabbitQueueReader,
+        args=(
+            innerQueue,
+            isProdigy,
+        ),
+    )
 
     restfulApiReaderProcess.start()
     rabbitQueueReaderProcess.start()

@@ -2,34 +2,26 @@ import telebot, sys, pika, time, json, threading
 import time
 from prometheus_client import start_http_server, Histogram
 
-REQUEST_TIME = Histogram('tg_request_processing_seconds', 'Time spent processing request')
+REQUEST_TIME = Histogram(
+    "tg_request_processing_seconds", "Time spent processing request"
+)
 
 
-# time.sleep(30)
 def AutificationMain(isProdigy):
     if isProdigy:
-        RUN = open("RUNProdigy.txt", "r")
-        RUN_arr = RUN.readlines()
-        token = RUN_arr[0][:-1]
+        with open("/run/secrets/TG_API_TOKEN", "r") as token_file:
+            token = token_file.read().strip()
         bot = telebot.TeleBot(token, num_threads=4)
-        RUN.close()
         return bot
     else:
-        RUN = open("RUN.txt", "r")
-        RUN_arr = RUN.readlines()
-        token = RUN_arr[0][:-1]
+        with open("RUN.txt", "r") as run_file:
+            RUN_arr = run_file.readlines()
+            token = RUN_arr[0].strip()
+
         bot = telebot.TeleBot(token, num_threads=4)
-        RUN.close()
         return bot
 
 
-# eventQueue = multiprocessing.Queue(maxsize=1000)
-# sendQueue = multiprocessing.Queue(maxsize=1000)
-# pipeQueue = multiprocessing.Queue(maxsize=100)
-# for i in range(50):
-#     pipeST , pipeED = multiprocessing.Pipe()
-#     tmp = {"start" : pipeST, "end" : pipeED}
-#     pipeQueue.put(tmp)
 isLocal = int(sys.argv[1])
 isProdigy = int(sys.argv[2])
 debug = int(sys.argv[3])
@@ -137,50 +129,6 @@ def async_handle_answer(bot):
 
     channel.start_consuming()
 
-
-# for event in LP.listen():
-
-#     if event.type == VkBotEventType.MESSAGE_NEW:
-#         text = event.object["message"]["text"].lower()
-#         if (
-#             event.object["message"]["peer_id"]
-#             != event.object["message"]["from_id"]
-#         ):
-#             if text in commands:
-#                 channel.basic_publish(
-#                     exchange="",
-#                     routing_key="eventQueue",
-#                     body=json.dumps(dict(event.object)),
-#                 )
-#                 # eventQueue.put(dict(event.object))
-
-#         elif (
-#             event.object["message"]["peer_id"]
-#             == event.object["message"]["from_id"]
-#         ):
-#             if text == "" or text[0] == "/" or text == "начать":
-#                 request = (
-#                     "bot",
-#                     "messages.send",
-#                     {
-#                         "peer_id": event.object["message"]["from_id"],
-#                         "message": "Дружище, наш бот работает только в беседах. Здесь ты можешь задать вопрос разработчикам. Подпишись на нашу группу, чтобы не пропускать новости разработки и ежедневные топы бесед, а пока держи гайд: https://vk.com/@social_rating_kraftbot-itak-prishlo-vremya-napisat-podrobnyi-gaid-na-bota",
-#                         "random_id": random.randint(1, 2147483647),
-#                     },
-#                     "OneWay",
-#                 )
-#                 channel.basic_publish(
-#                     exchange="",
-#                     routing_key="sendQueue",
-#                     body=json.dumps(list(event.request)),
-#                 )
-#                 # sendQueue.put(request)
-#             else:
-#                 continue
-#     elif event.type == "donut_subscription_create":
-#         print("Мама, ноый донат)")
-#     elif event.type == "donut_subscription_expired":
-#         print("Блин, минус дон(")
 
 if __name__ == "__main__":
     while True:

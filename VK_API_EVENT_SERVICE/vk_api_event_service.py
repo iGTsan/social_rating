@@ -6,27 +6,30 @@ import time
 def AutificationMain(isProdigy):
     global LP
     if isProdigy:
-        RUN = open('RUNProdigy.txt', 'r')
-        RUN_arr = RUN.readlines()
-        vk = vk_api.VkApi(token=RUN_arr[0][:-1])
+        with open("/run/secrets/VK_API_TOKEN", "r") as token_file, open(
+            "/run/secrets/VK_GROUP_ID", "r"
+        ) as group_id_file:
+            token = token_file.read().strip()
+            group_id = group_id_file.read().strip()
+
+        vk = vk_api.VkApi(token=token)
         vk._auth_token()
-        LP = VkBotLongPoll(vk, RUN_arr[1])
-        RUN.close()
+        LP = VkBotLongPoll(vk, group_id)
         return LP
     else:
-        RUN = open('RUN.txt', 'r')
-        RUN_arr = RUN.readlines()
-        vk = vk_api.VkApi(token=RUN_arr[0][:-1])
-        vk._auth_token()
-        LP = VkBotLongPoll(vk, RUN_arr[1])
-        RUN.close()
-        return LP
+        with open("RUN.txt", "r") as run_file:
+            RUN_arr = run_file.readlines()
+            vk = vk_api.VkApi(token=RUN_arr[0][:-1])
+            vk._auth_token()
+            LP = VkBotLongPoll(vk, RUN_arr[1])
+            return LP
 
 
 def auth_handler():
     key = input("Enter authentication code: ")
     remember_device = True
     return key, remember_device
+
 
 if __name__ == "__main__":
 
@@ -45,7 +48,11 @@ if __name__ == "__main__":
 
     while True:
         try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq' if isProdigy == False else 'rabbitmq_dev'))
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(
+                    "rabbitmq" if isProdigy == False else "rabbitmq_dev"
+                )
+            )
             channel = connection.channel()
             break
         except Exception:
@@ -54,9 +61,8 @@ if __name__ == "__main__":
             time.sleep(2)
             continue
 
-    channel.queue_declare(queue='eventQueue')
-    channel.queue_declare(queue='sendQueue')
-
+    channel.queue_declare(queue="eventQueue")
+    channel.queue_declare(queue="sendQueue")
 
     LP = AutificationMain(isProdigy)
 
@@ -77,7 +83,16 @@ if __name__ == "__main__":
     # eventManagerProcess.start()
     # dailyTasksProcess.start()
 
-    commands = ["/соціальный_рейтинг", "/топ", "/топ_все", "/ролл", "/чат", "/микс", "/мой_соціальный_рейтинг", "/маргинализация"]
+    commands = [
+        "/соціальный_рейтинг",
+        "/топ",
+        "/топ_все",
+        "/ролл",
+        "/чат",
+        "/микс",
+        "/мой_соціальный_рейтинг",
+        "/маргинализация",
+    ]
 
     while True:
         print("Ready")
@@ -87,20 +102,40 @@ if __name__ == "__main__":
 
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     text = event.object["message"]["text"].lower()
-                    if event.object["message"]["peer_id"] != event.object["message"]["from_id"]:
+                    if (
+                        event.object["message"]["peer_id"]
+                        != event.object["message"]["from_id"]
+                    ):
                         if text in commands:
                             start_time_dict = {"start_time": time.time()}
-                            channel.basic_publish(exchange='', routing_key='eventQueue', body=json.dumps(dict(event.object) | start_time_dict))
-                            #eventQueue.put(dict(event.object))
+                            channel.basic_publish(
+                                exchange="",
+                                routing_key="eventQueue",
+                                body=json.dumps(dict(event.object) | start_time_dict),
+                            )
+                            # eventQueue.put(dict(event.object))
 
-                    elif event.object["message"]["peer_id"] == event.object["message"]["from_id"]:
+                    elif (
+                        event.object["message"]["peer_id"]
+                        == event.object["message"]["from_id"]
+                    ):
                         if text == "" or text[0] == "/" or text == "начать":
-                            request = ("bot", "messages.send",
-                                      {"peer_id": event.object["message"]["from_id"],
-                                       "message": "Дружище, наш бот работает только в беседах. Здесь ты можешь задать вопрос разработчикам. Подпишись на нашу группу, чтобы не пропускать новости разработки и ежедневные топы бесед, а пока держи гайд: https://vk.com/@social_rating_kraftbot-itak-prishlo-vremya-napisat-podrobnyi-gaid-na-bota",
-                                       "random_id": random.randint(1, 2147483647)}, "OneWay")
-                            channel.basic_publish(exchange='', routing_key='sendQueue', body=json.dumps(list(event.request)))
-                            #sendQueue.put(request)
+                            request = (
+                                "bot",
+                                "messages.send",
+                                {
+                                    "peer_id": event.object["message"]["from_id"],
+                                    "message": "Дружище, наш бот работает только в беседах. Здесь ты можешь задать вопрос разработчикам. Подпишись на нашу группу, чтобы не пропускать новости разработки и ежедневные топы бесед, а пока держи гайд: https://vk.com/@social_rating_kraftbot-itak-prishlo-vremya-napisat-podrobnyi-gaid-na-bota",
+                                    "random_id": random.randint(1, 2147483647),
+                                },
+                                "OneWay",
+                            )
+                            channel.basic_publish(
+                                exchange="",
+                                routing_key="sendQueue",
+                                body=json.dumps(list(event.request)),
+                            )
+                            # sendQueue.put(request)
                         else:
                             continue
                 elif event.type == "donut_subscription_create":
@@ -113,10 +148,14 @@ if __name__ == "__main__":
                 connection.close()
             except Exception as excpt:
                 print("conndrop", excpt)
-                
+
             while True:
                 try:
-                    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq' if isProdigy == False else 'rabbitmq_dev'))
+                    connection = pika.BlockingConnection(
+                        pika.ConnectionParameters(
+                            "rabbitmq" if isProdigy == False else "rabbitmq_dev"
+                        )
+                    )
                     channel = connection.channel()
                     break
                 except Exception:
@@ -125,8 +164,8 @@ if __name__ == "__main__":
                     time.sleep(2)
                     continue
 
-            channel.queue_declare(queue='eventQueue')
-            channel.queue_declare(queue='sendQueue')
+            channel.queue_declare(queue="eventQueue")
+            channel.queue_declare(queue="sendQueue")
 
             try:
                 LP = AutificationMain(isProdigy)

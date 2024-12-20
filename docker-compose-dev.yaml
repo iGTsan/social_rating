@@ -20,7 +20,8 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PW} 
+    secrets:
+      - POSTGRES_PW
     #ports:
       #- 5432:5432
     restart: always
@@ -98,6 +99,9 @@ services:
     depends_on:
       - db_dev
       - rabbitmq_dev
+    secrets:
+      - VK_API_TOKEN
+      - VK_GROUP_ID
 
   tg_api_event_dev:
     container_name: tg_api_event_dev
@@ -113,6 +117,9 @@ services:
     depends_on:
       - db_dev
       - rabbitmq_dev
+    secrets:
+      - TG_API_TOKEN
+
       
   prometheus:
     image: prom/prometheus
@@ -139,3 +146,14 @@ services:
 networks:
   dkb_dev:
     driver: bridge
+
+
+secrets:
+  POSTGRES_PW:
+    file: ./POSTGRES_PW.txt
+  VK_API_TOKEN:
+    file: ./VK_API_TOKEN.txt
+  VK_GROUP_ID:
+    file: ./VK_GROUP_ID.txt
+  TG_API_TOKEN:
+    file: ./TG_API_TOKEN.txt
