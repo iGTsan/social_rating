@@ -19,7 +19,8 @@ services:
     container_name: db_dev
     image: postgres:16
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_USER: ${POSTGRES_USER:-DrBalanc}
+      POSTGRES_PASSWORD_FILE: ${POSTGRES_PASSWORD_FILE:-/run/secrets/POSTGRES_PW}
     secrets:
       - POSTGRES_PW
     #ports:
@@ -28,8 +29,8 @@ services:
     networks:
       - dkb_dev
     volumes:
-      - ./containers_data/db:/var/lib/postgresql/data
-      - ./DB_SERVICE:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/postgresql/data
+      - dump-db-data:/docker-entrypoint-initdb.d
 
   adminer:
     image: adminer
@@ -49,11 +50,14 @@ services:
     #ports:
     #  - 7331:7331
     environment:
-      - DEBUG=${DEBUG}
-      - PRODIGY=${PRODIGY}
-      - LOCAL=${LOCAL}
+      - DEBUG=${DEBUG:-0}
+      - PRODIGY=${PRODIGY:-1}
+      - LOCAL=${LOCAL:-1}
     depends_on:
       - rabbitmq_dev
+    secrets:
+      - VK_API_TOKEN
+      - VK_GROUP_ID
     
   vk_daily_dev:
     container_name: social_rating_kraft_bot_vk_daily_dev
@@ -63,9 +67,9 @@ services:
     networks:
       - dkb_dev
     environment:
-      - DEBUG=${DEBUG}
-      - PRODIGY=${PRODIGY}
-      - LOCAL=${LOCAL}
+      - DEBUG=${DEBUG:-0}
+      - PRODIGY=${PRODIGY:-1}
+      - LOCAL=${LOCAL:-1}
     depends_on:
       - db_dev
       - rabbitmq_dev
@@ -78,9 +82,9 @@ services:
     networks:
       - dkb_dev
     environment:
-      - DEBUG=${DEBUG}
-      - PRODIGY=${PRODIGY}
-      - LOCAL=${LOCAL}
+      - DEBUG=${DEBUG:-0}
+      - PRODIGY=${PRODIGY:-1}
+      - LOCAL=${LOCAL:-1}
     depends_on:
       - db_dev
       - rabbitmq_dev
@@ -93,9 +97,9 @@ services:
     networks:
       - dkb_dev
     environment:
-      - DEBUG=${DEBUG}
-      - PRODIGY=${PRODIGY}
-      - LOCAL=${LOCAL}
+      - DEBUG=${DEBUG:-0}
+      - PRODIGY=${PRODIGY:-1}
+      - LOCAL=${LOCAL:-1}
     depends_on:
       - db_dev
       - rabbitmq_dev
@@ -111,9 +115,9 @@ services:
     networks:
       - dkb_dev
     environment:
-      - DEBUG=${DEBUG}
-      - PRODIGY=${PRODIGY}
-      - LOCAL=${LOCAL}
+      - DEBUG=${DEBUG:-0}
+      - PRODIGY=${PRODIGY:-1}
+      - LOCAL=${LOCAL:-1}
     depends_on:
       - db_dev
       - rabbitmq_dev
@@ -124,7 +128,7 @@ services:
   prometheus:
     image: prom/prometheus
     volumes:
-      - ./PROMETHEUS:/etc/prometheus
+      - prometheus-data:/etc/prometheus
     ports:
       - 9090:9090
     networks:
@@ -133,7 +137,7 @@ services:
   grafana:
     image: grafana/grafana
     volumes:
-      - ./GRAPHANA:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
     ports:
       - 3000:3000
     env_file:
@@ -147,6 +151,26 @@ networks:
   dkb_dev:
     driver: bridge
 
+volumes:
+  db-data:
+  dump-db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./DB_SERVICE
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./GRAPHANA
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./PROMETHEUS
 
 secrets:
   POSTGRES_PW:
